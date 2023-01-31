@@ -101,6 +101,12 @@ public class CommandDev extends Command
             if(!delete) Mongo.QuestionsVotingDB.updateOne(Filters.eq("attachmentID", msg[2]), Updates.set("flag", "keep"));
             else Mongo.QuestionsVotingDB.updateOne(Filters.eq("attachmentID", msg[2]), Updates.set("flag", "delete"));
         }
+        else if(command.getAsString().startsWith("queryattachment"))
+        {
+            String[] msg = command.getAsString().split("-");
+
+            event.getChannel().sendMessage(Mongo.QuestionsVotingDB.find(Filters.eq("attachmentID", msg[1])).first().toString()).queue();
+        }
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").queue();
