@@ -73,7 +73,7 @@ public abstract class Command
             this.channel.sendMessageEmbeds(this.embed.build()).queue();
         }
         else if(!this.response.isEmpty()) text.accept(this.response);
-        else if(this.embed != null) embed.accept(this.embed.build());
+        else if(this.embed != null && !this.embed.isEmpty()) embed.accept(this.embed.build());
     }
 
     //Parsers

@@ -102,7 +102,7 @@ public class CommandQuestions extends Command
 
             this.response = event.getUser().getAsMention() + " You successfully voted to " + (keep ? "keep" : "shard") + " this attachment!";
 
-            TextChannel general = event.getGuild().getChannelById(TextChannel.class, "983450314885713943");
+            TextChannel general = event.getGuild().getChannelById(TextChannel.class, "1069872555541938297");
             Member me = event.getGuild().retrieveMemberById("309135641453527040").complete();
 
             if(me != null && general != null)
