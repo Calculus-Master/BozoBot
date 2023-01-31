@@ -26,12 +26,14 @@ public abstract class Command
 
     protected EmbedBuilder embed;
     protected String response;
+    protected boolean ephemeral;
 
     public Command()
     {
         this.player = null;
         this.server = null;
         this.channel = null;
+        this.ephemeral = false;
     }
 
     //For Subclasses
@@ -108,7 +110,7 @@ public abstract class Command
         if(!result && this.embed != null && !this.embed.isEmpty()) this.embed.setColor(Color.RED);
         if(!result && !this.response.isEmpty()) this.response = "[ERROR] " + this.response;
 
-        this.respond(s -> event.reply(s).queue(), e -> event.replyEmbeds(e).queue());
+        this.respond(s -> event.reply(s).setEphemeral(this.ephemeral).queue(), e -> event.replyEmbeds(e).setEphemeral(this.ephemeral).queue());
     }
 
     public void parseAutocomplete(CommandAutoCompleteInteractionEvent event)
@@ -129,7 +131,7 @@ public abstract class Command
 
         this.initResponses();
         boolean result = this.buttonLogic(event);
-        this.respond(s -> event.reply(s).queue(), e -> event.replyEmbeds(e).queue());
+        this.respond(s -> event.reply(s).setEphemeral(this.ephemeral).queue(), e -> event.replyEmbeds(e).setEphemeral(this.ephemeral).queue());
     }
 
     //Overrides

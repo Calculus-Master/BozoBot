@@ -1,9 +1,11 @@
 package com.calculusmaster.bozo;
 
+import com.calculusmaster.bozo.commands.CommandQuestions;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import com.calculusmaster.bozo.util.BozoLogger;
 import com.calculusmaster.bozo.util.HiddenConfig;
 import com.calculusmaster.bozo.util.Listener;
+import com.calculusmaster.bozo.util.Mongo;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -22,6 +24,10 @@ public class BozoBot
 
     public static void main(String[] args) throws InterruptedException
     {
+        BozoLogger.suppressMongo();
+
+        BozoLogger.init("Questions Attachments", CommandQuestions::readAttachmentsCached);
+
         JDABuilder bot = JDABuilder
                 .createDefault(HiddenConfig.TOKEN)
                 .enableIntents(GatewayIntent.getIntents(GatewayIntent.DEFAULT))

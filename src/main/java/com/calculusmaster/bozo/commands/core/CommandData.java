@@ -59,7 +59,7 @@ public class CommandData
 
     public boolean hasButton(String buttonID)
     {
-        return this.buttonIDs.contains(buttonID);
+        return this.buttonIDs.contains(buttonID) || this.buttonIDs.stream().anyMatch(buttonID::contains);
     }
 
     public Command getInstance()
