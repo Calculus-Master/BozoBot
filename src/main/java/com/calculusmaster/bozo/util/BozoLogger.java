@@ -18,4 +18,14 @@ public class BozoLogger
     {
         LoggerFactory.getLogger(clazz).info(msg);
     }
+
+    public static void warn(Class<?> clazz, String msg)
+    {
+        LoggerFactory.getLogger(clazz).warn(msg);
+    }
+
+    public static void error(Class<?> clazz, String msg)
+    {
+        LoggerFactory.getLogger(clazz).error(msg);
+    }
 }

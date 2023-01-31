@@ -1,2 +1,9 @@
 # Project exclude paths
 /.gradle/
+/src/main/java/com/calculusmaster/bozo/util/HiddenConfig.java
+/.idea/
+/gradlew
+/gradlew.bat
+/gradle/
+/build/
+/BozoBot.iml
