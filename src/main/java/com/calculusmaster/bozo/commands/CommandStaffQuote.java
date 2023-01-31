@@ -5,6 +5,7 @@ import com.calculusmaster.bozo.commands.core.CommandData;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
@@ -50,10 +51,14 @@ public class CommandStaffQuote extends Command
                 this.embed.setImage(quote.getAttachments().get(0).getUrl());
             });
         }
-        catch (InterruptedException | ExecutionException e)
+        catch(InterruptedException | ExecutionException e)
         {
             e.printStackTrace();
             return false;
+        }
+        catch(InsufficientPermissionException e)
+        {
+            return this.error("Insufficient permission to access the staff quotes channel!");
         }
 
         return true;
