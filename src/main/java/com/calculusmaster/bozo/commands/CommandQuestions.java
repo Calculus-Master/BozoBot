@@ -102,15 +102,15 @@ public class CommandQuestions extends Command
 
             this.response = event.getUser().getAsMention() + " You successfully voted to " + (keep ? "keep" : "shard") + " this attachment!";
 
-            TextChannel general = event.getGuild().getChannelById(TextChannel.class, "983450314885713943");
+            TextChannel general = event.getGuild().getChannelById(TextChannel.class, "1069872555541938297");
             Member me = event.getGuild().retrieveMemberById("309135641453527040").complete();
 
             if(me != null && general != null)
             {
                 int thresh = 4;
-                if(data.getInteger("votes_keep") + 1 >= thresh)
+                if(data.getInteger("votes_keep") + 1 > thresh)
                     general.sendMessage(me.getAsMention() + " – Attachment ID {%s} has been flagged **to be kept**!".formatted(data.getString("attachmentID"))).queue();
-                else if(data.getInteger("votes_shard") + 1 >= thresh)
+                else if(data.getInteger("votes_shard") + 1 > thresh)
                     general.sendMessage(me.getAsMention() + " – Attachment ID {%s} has been flagged **for removal**!".formatted(data.getString("attachmentID"))).queue();
             }
 

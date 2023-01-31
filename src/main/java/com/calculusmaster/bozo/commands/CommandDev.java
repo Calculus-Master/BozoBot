@@ -98,12 +98,12 @@ public class CommandDev extends Command
 
             boolean delete = msg[1].equals("delete");
 
-            if(delete) Mongo.QuestionsVotingDB.updateOne(Filters.eq("attachmentID", msg[2]), Updates.set("flagged", "keep"));
-            else Mongo.QuestionsVotingDB.updateOne(Filters.eq("attachmentID", msg[2]), Updates.set("flagged", "delete"));
+            if(!delete) Mongo.QuestionsVotingDB.updateOne(Filters.eq("attachmentID", msg[2]), Updates.set("flag", "keep"));
+            else Mongo.QuestionsVotingDB.updateOne(Filters.eq("attachmentID", msg[2]), Updates.set("flag", "delete"));
         }
         else return this.error("Invalid command!");
 
-        event.reply("Done!").queue();
+        event.reply(event.getUser().getAsMention() + " Done!").queue();
         return true;
     }
 }
