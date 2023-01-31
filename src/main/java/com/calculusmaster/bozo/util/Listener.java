@@ -1,6 +1,9 @@
 package com.calculusmaster.bozo.util;
 
 import com.calculusmaster.bozo.commands.CommandBozo;
+import com.calculusmaster.bozo.commands.CommandRandomWackyLoadout;
+import com.calculusmaster.bozo.commands.CommandRandomWackyName;
+import com.calculusmaster.bozo.commands.CommandStaffQuote;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -16,6 +19,9 @@ public class Listener extends ListenerAdapter
     public static void init()
     {
         CommandBozo.init();
+        CommandStaffQuote.init();
+        CommandRandomWackyLoadout.init();
+        CommandRandomWackyName.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)

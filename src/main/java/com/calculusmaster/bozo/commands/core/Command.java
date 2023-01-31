@@ -1,5 +1,6 @@
 package com.calculusmaster.bozo.commands.core;
 
+import com.calculusmaster.bozo.util.BozoLogger;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -84,14 +85,20 @@ public abstract class Command
         boolean result;
         try
         {
+            long i = System.currentTimeMillis();
             result = this.slashCommandLogic(event);
+            long f = System.currentTimeMillis();
+
+            BozoLogger.info(Command.class, "Slash Command Logic took " + (f - i) + "ms.");
         }
         catch (Exception exception)
         {
+            String stack = Arrays.stream(exception.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n"));
+
             this.response = "";
             this.embed
                     .setTitle(exception.toString())
-                    .setDescription(Arrays.stream(exception.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n")).substring(0, 2048));
+                    .setDescription(stack.substring(0, Math.min(2048, stack.length())));
 
             exception.printStackTrace();
 

@@ -7,6 +7,7 @@ import com.calculusmaster.bozo.util.Listener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ public class BozoBot
                 );
 
         BOT_JDA = bot.build().awaitReady();
+
+        Message.suppressContentIntentWarning();
 
         BozoLogger.init("Slash Commands", Listener::init);
 
