@@ -23,6 +23,7 @@ public class Listener extends ListenerAdapter
         CommandRandomWackyName.init();
         CommandQuestions.init();
         CommandDev.init();
+        CommandOhHeavens.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
