@@ -3,6 +3,7 @@ package com.calculusmaster.bozo.commands.core;
 import com.calculusmaster.bozo.BozoBot;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class CommandData
@@ -12,11 +13,15 @@ public class CommandData
     private Supplier<Command> supplier;
     private SlashCommandData slashCommandData;
 
+    private List<String> buttonIDs;
+
     private CommandData(String commandName)
     {
         this.commandName = commandName;
         this.supplier = null;
         this.slashCommandData = null;
+
+        this.buttonIDs = List.of();
     }
 
     public void register()
@@ -41,9 +46,20 @@ public class CommandData
         return this;
     }
 
+    public CommandData withButtons(String... buttonIDs)
+    {
+        this.buttonIDs = List.of(buttonIDs);
+        return this;
+    }
+
     public SlashCommandData getSlashCommandData()
     {
         return this.slashCommandData;
+    }
+
+    public boolean hasButton(String buttonID)
+    {
+        return this.buttonIDs.contains(buttonID);
     }
 
     public Command getInstance()

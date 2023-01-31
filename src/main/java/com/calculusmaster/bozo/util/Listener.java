@@ -1,12 +1,11 @@
 package com.calculusmaster.bozo.util;
 
-import com.calculusmaster.bozo.commands.CommandBozo;
-import com.calculusmaster.bozo.commands.CommandRandomWackyLoadout;
-import com.calculusmaster.bozo.commands.CommandRandomWackyName;
-import com.calculusmaster.bozo.commands.CommandStaffQuote;
+import com.calculusmaster.bozo.commands.*;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.function.Predicate;
@@ -22,6 +21,7 @@ public class Listener extends ListenerAdapter
         CommandStaffQuote.init();
         CommandRandomWackyLoadout.init();
         CommandRandomWackyName.init();
+        CommandQuestions.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
@@ -49,5 +49,27 @@ public class Listener extends ListenerAdapter
             BozoLogger.info(Listener.class, "Parsing Slash Command: /" + event.getFullCommandName() + " " + event.getOptions().stream().map(o -> o.getName() + ":" + o.getAsString()).collect(Collectors.joining(" ")));
             data.getInstance().parseSlashCommand(event);
         }
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event)
+    {
+        CommandData data = this.findCommandData(c -> c.getCommandName().equals(event.getName()));
+
+        if(data == null) BozoLogger.error(Listener.class, "Autocomplete Slash Command not found: " + event.getName());
+        else data.getInstance().parseAutocomplete(event);
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event)
+    {
+        CommandData data = this.findCommandData(c -> c.hasButton(event.getComponentId()));
+
+        if(data == null)
+        {
+            BozoLogger.error(Listener.class, "Button ID not found: " + event.getComponentId());
+            event.reply("An error has occurred.").setEphemeral(true).queue();
+        }
+        else data.getInstance().parseButtonInteraction(event);
     }
 }

@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -120,9 +121,21 @@ public abstract class Command
         boolean result = this.autocompleteLogic(event);
     }
 
+    public void parseButtonInteraction(ButtonInteractionEvent event)
+    {
+        this.setPlayer(event.getUser());
+        this.setServer(Objects.requireNonNull(event.getGuild()));
+        this.setChannel(Objects.requireNonNull(event.getChannel()).asTextChannel());
+
+        this.initResponses();
+        boolean result = this.buttonLogic(event);
+        this.respond(s -> event.reply(s).queue(), e -> event.replyEmbeds(e).queue());
+    }
+
     //Overrides
     protected boolean slashCommandLogic(SlashCommandInteractionEvent event) { return false; }
     protected boolean autocompleteLogic(CommandAutoCompleteInteractionEvent event) { return false; }
+    protected boolean buttonLogic(ButtonInteractionEvent event) { return false; }
 
     //Misc
     public void setCommandData(CommandData commandData)

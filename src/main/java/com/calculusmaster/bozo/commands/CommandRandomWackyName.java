@@ -41,10 +41,8 @@ public class CommandRandomWackyName extends Command
                 if(!m.getAttachments().isEmpty()) pool.add(m);
             });
 
-            pool.forEach(m -> {
-                Message quote = pool.get(r.nextInt(pool.size()));
-                this.embed.setImage(quote.getAttachments().get(0).getUrl());
-            });
+            Message quote = pool.get(r.nextInt(pool.size()));
+            this.embed.setImage(quote.getAttachments().get(0).getUrl());
         }
         catch (InterruptedException | ExecutionException e)
         {
