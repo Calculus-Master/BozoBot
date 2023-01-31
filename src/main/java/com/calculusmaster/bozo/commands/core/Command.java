@@ -95,10 +95,8 @@ public abstract class Command
         {
             String stack = Arrays.stream(exception.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n"));
 
-            this.response = "";
-            this.embed
-                    .setTitle(exception.toString())
-                    .setDescription(stack.substring(0, Math.min(2048, stack.length())));
+            this.response = "**" + exception + "**\n:" + stack.substring(0, Math.min(2048, stack.length()));
+            this.embed = null;
 
             exception.printStackTrace();
 

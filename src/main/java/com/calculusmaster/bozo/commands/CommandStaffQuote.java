@@ -32,7 +32,7 @@ public class CommandStaffQuote extends Command
     protected boolean slashCommandLogic(SlashCommandInteractionEvent event)
     {
         //TODO: Use actual staff quotes channel
-        TextChannel channel = event.getGuild().getChannelById(TextChannel.class, "983450314885713943" /*"1040896688673529886"*/);
+        TextChannel channel = event.getGuild().getChannelById(TextChannel.class, /*"983450314885713943" */"1040896688673529886");
         if(channel == null) return this.error("Can't access staff quotes channel or it doesn't exist.");
 
         Random r = new Random();
