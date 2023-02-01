@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.util.ArrayList;
@@ -44,5 +45,8 @@ public class BozoBot
 
         BOT_JDA.getGuildById("983450314885713940").updateCommands()
                 .addCommands(COMMANDS.stream().map(CommandData::getSlashCommandData).toList()).queue();
+
+        //It's Bozo Time
+        BOT_JDA.getChannelById(TextChannel.class, "1069872555541938297").sendMessage("It's Bozo'in Time.").queue();
     }
 }
