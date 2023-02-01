@@ -105,7 +105,7 @@ public class CommandQuestions extends Command
             TextChannel general = event.getGuild().getChannelById(TextChannel.class, "1069872555541938297");
             Member me = event.getGuild().retrieveMemberById("309135641453527040").complete();
 
-            if(me != null && general != null)
+            if(me != null && general != null && !data.getString("flag").equals("none"))
             {
                 int thresh = 4;
                 if(data.getInteger("votes_keep") + 1 >= thresh)
