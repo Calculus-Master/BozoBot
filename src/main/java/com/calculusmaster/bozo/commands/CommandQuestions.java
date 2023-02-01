@@ -108,9 +108,9 @@ public class CommandQuestions extends Command
             if(me != null && general != null && data.getString("flag").equals("none"))
             {
                 int thresh = 4;
-                if(data.getInteger("votes_keep") + 1 >= thresh)
+                if(data.getInteger("votes_keep") + 1 > thresh)
                     general.sendMessage(me.getAsMention() + " – Attachment ID {%s} has been flagged **to be kept**!".formatted(data.getString("attachmentID"))).queue();
-                else if(data.getInteger("votes_shard") + 1 >= thresh)
+                else if(data.getInteger("votes_shard") + 1 > thresh)
                     general.sendMessage(me.getAsMention() + " – Attachment ID {%s} has been flagged **for removal**!".formatted(data.getString("attachmentID"))).queue();
             }
 
