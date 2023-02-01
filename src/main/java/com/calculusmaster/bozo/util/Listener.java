@@ -3,11 +3,16 @@ package com.calculusmaster.bozo.util;
 import com.calculusmaster.bozo.commands.*;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -73,5 +78,13 @@ public class Listener extends ListenerAdapter
             event.reply("An error has occurred.").setEphemeral(true).queue();
         }
         else data.getInstance().parseButtonInteraction(event);
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event)
+    {
+        List<String> supportedChannels = List.of("1065477877019201667", "998041223489138738", "1069872555541938297", "1053483842977136691", "1019727118868938922");
+        if(supportedChannels.contains(event.getMessage().getChannel().getId()) && new Random().nextFloat() < 0.1F)
+            event.getMessage().addReaction(Emoji.fromUnicode("U+1F913")).queue();
     }
 }
