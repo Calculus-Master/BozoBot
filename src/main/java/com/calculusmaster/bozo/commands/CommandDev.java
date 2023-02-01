@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class CommandDev extends Command
 {
@@ -106,6 +107,18 @@ public class CommandDev extends Command
             String[] msg = command.getAsString().split("-");
 
             event.getChannel().sendMessage(Mongo.QuestionsVotingDB.find(Filters.eq("attachmentID", msg[1])).first().toString()).queue();
+        }
+        else if(command.getAsString().equals("attachmentflagqueue"))
+        {
+            List<String> res = new ArrayList<>();
+            Mongo.QuestionsVotingDB.find(Filters.eq("flag", "none")).forEach(d -> {
+                if(d.getInteger("votes_keep") + 1 >= 4)
+                    res.add("ID {%s} – **KEEP**".formatted(d.getString("attachmentID")));
+                else if(d.getInteger("votes_shard") + 1 >= 4)
+                    res.add("ID {%s} – **SHARD**".formatted(d.getString("attachmentID")));
+            });
+
+            event.getChannel().sendMessage(String.join("\n", res)).queue();
         }
         else return this.error("Invalid command!");
 
