@@ -29,14 +29,15 @@ public class CommandBozo extends Command
     {
         OptionMapping userOption = event.getOption("user");
 
-        boolean isBozo = new Random().nextFloat() < 0.4F;
+        Random r = new Random();
+        boolean isBozo = r.nextFloat() < 0.499F;
         List<String> permanentBozos = List.of("1069804190458708049", "490401640843706368");
 
         if(permanentBozos.contains(event.getUser().getId()) || (userOption != null && permanentBozos.contains(userOption.getAsUser().getId())))
             isBozo = true;
 
         this.response = isBozo
-                ? (userOption == null ? "You are a bozo!" : userOption.getAsUser().getAsMention() + " is a bozo!")
+                ? (userOption == null ? "You are a %s!".formatted(r.nextFloat() < 0.05F ? "ozob" : "bozo") : userOption.getAsUser().getAsMention() + " is a %s!".formatted(r.nextFloat() < 0.05F ? "ozob" : "bozo"))
                 : (userOption == null ? "You are **not** a bozo!" : userOption.getAsUser().getAsMention() + " is **not** a bozo!");
 
         return true;
