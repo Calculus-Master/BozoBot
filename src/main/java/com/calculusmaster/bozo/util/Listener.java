@@ -84,7 +84,7 @@ public class Listener extends ListenerAdapter
     public void onMessageReceived(MessageReceivedEvent event)
     {
         List<String> supportedChannels = List.of("1065477877019201667", "998041223489138738", "1069872555541938297", "1053483842977136691", "1019727118868938922");
-        if(supportedChannels.contains(event.getMessage().getChannel().getId()) && new Random().nextFloat() < 0.1F)
+        if(supportedChannels.contains(event.getMessage().getChannel().getId()) && new Random().nextFloat() < 0.05F)
             event.getMessage().addReaction(Emoji.fromUnicode("U+1F913")).queue();
     }
 }

@@ -39,6 +39,12 @@ public abstract class Command
     //For Subclasses
     protected boolean error(String errorMessage)
     {
+        return this.error(errorMessage, false);
+    }
+
+    protected boolean error(String errorMessage, boolean ephemeral)
+    {
+        this.ephemeral = ephemeral;
         this.response = errorMessage;
         return false;
     }

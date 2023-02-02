@@ -52,7 +52,6 @@ public class CommandQuestions extends Command
     @Override
     protected boolean slashCommandLogic(SlashCommandInteractionEvent event)
     {
-        //TODO: Use actual staff quotes channel
         TextChannel channel = event.getGuild().getChannelById(TextChannel.class, "998041223489138738");
         if(channel == null) return this.error("Can't access questions channel or it doesn't exist.");
 
@@ -85,12 +84,17 @@ public class CommandQuestions extends Command
         if(data == null) return this.error("Attachment not found!");
         else if(event.getComponentId().startsWith(JONGOS_MID))
         {
-            Member jongo = event.getGuild().retrieveMemberById("274068634798915584").complete();
-            this.response = (new Random().nextFloat() < 0.1F ? jongo.getAsMention() + "\n" : "") + data;
+            if(event.getUser().getId().equals("309135641453527040"))
+                this.response = data + "";
+            else
+            {
+                Member jongo = event.getGuild().retrieveMemberById("274068634798915584").complete();
+                this.response = new Random().nextFloat() < 0.1F ? jongo.getAsMention() + "\n" : "I agree.";
+            }
 
             return true;
         }
-        else if(data.getList("voters", String.class).contains(event.getUser().getId())) return this.error(event.getUser().getAsMention() + " You've already voted on this attachment!");
+        else if(data.getList("voters", String.class).contains(event.getUser().getId())) return this.error(event.getUser().getAsMention() + " You've already voted on this attachment!", true);
         else
         {
             Bson query = Filters.eq("attachmentID", attachmentID);
@@ -100,6 +104,7 @@ public class CommandQuestions extends Command
 
             Mongo.QuestionsVotingDB.updateOne(query, Updates.push("voters", event.getUser().getId()));
 
+            this.ephemeral = true;
             this.response = event.getUser().getAsMention() + " You successfully voted to " + (keep ? "keep" : "shard") + " this attachment!";
 
             TextChannel general = event.getGuild().getChannelById(TextChannel.class, "1069872555541938297");
