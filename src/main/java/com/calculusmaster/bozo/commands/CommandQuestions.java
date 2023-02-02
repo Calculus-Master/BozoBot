@@ -34,7 +34,7 @@ public class CommandQuestions extends Command
 
     public static void readAttachmentsCached()
     {
-        Mongo.QuestionsVotingDB.find().forEach(d -> CommandQuestions.ATTACHMENTS.add(d.getString("link")));
+        Mongo.QuestionsVotingDB.find().filter(Filters.not(Filters.eq("flag", "shard"))).forEach(d -> CommandQuestions.ATTACHMENTS.add(d.getString("link")));
     }
 
     public static void init()

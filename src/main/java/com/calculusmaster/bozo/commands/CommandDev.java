@@ -120,6 +120,22 @@ public class CommandDev extends Command
 
             event.getChannel().sendMessage(String.join("\n", res)).queue();
         }
+        else if(command.getAsString().equals("autoflag"))
+        {
+            List<String> keep = new ArrayList<>(), shard = new ArrayList<>();
+            Mongo.QuestionsVotingDB.find(Filters.eq("flag", "none")).forEach(d -> {
+                if(d.getInteger("votes_keep") + 1 >= 4)
+                    keep.add(d.getString("attachmentID"));
+                else if(d.getInteger("votes_shard") + 1 >= 4)
+                    shard.add(d.getString("attachmentID"));
+            });
+
+            for(String s : keep) Mongo.QuestionsVotingDB.updateOne(Filters.eq("attachmentID", s), Updates.set("flag", "keep"));
+            for(String s : shard) Mongo.QuestionsVotingDB.updateOne(Filters.eq("attachmentID", s), Updates.set("flag", "shard"));
+
+            event.getChannel().sendMessage("Flagged **" + keep.size() + "** attachments to keep and **" + shard.size() + "** attachments to shard.").queue();
+            CommandQuestions.readAttachmentsCached();
+        }
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").queue();
