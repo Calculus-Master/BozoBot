@@ -18,10 +18,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class CommandQuestions extends Command
@@ -29,6 +26,12 @@ public class CommandQuestions extends Command
     public static final String VOTE_KEEP = "QUESTIONS_VOTE_KEEP";
     public static final String VOTE_SHARD = "QUESTIONS_VOTE_SHARD";
     public static final String JONGOS_MID = "JONGOS_MID";
+
+    public static final String VOTE_MOMENT = "QUESTIONS_VOTE_MOMENT";
+    public static final String VOTE_MOMENT_BALTI = VOTE_MOMENT + "_BALTI";
+    public static final String VOTE_MOMENT_JOYBOY = VOTE_MOMENT + "_JOYBOY";
+    public static final String VOTE_MOMENT_HANDSOME = VOTE_MOMENT + "_HANDSOME";
+    public static final String VOTE_MOMENT_STOLAS = VOTE_MOMENT + "_STOLAS";
 
     public static final List<String> ATTACHMENTS = new ArrayList<>();
 
@@ -42,7 +45,7 @@ public class CommandQuestions extends Command
         CommandData
                 .create("questions")
                 .withConstructor(CommandQuestions::new)
-                .withButtons(VOTE_KEEP, VOTE_SHARD, JONGOS_MID)
+                .withButtons(VOTE_KEEP, VOTE_SHARD, JONGOS_MID, VOTE_MOMENT)
                 .withCommand(Commands
                         .slash("questions", "Gets a random questions moment.")
                 )
@@ -65,8 +68,16 @@ public class CommandQuestions extends Command
         Button shard = Button.of(ButtonStyle.DANGER, VOTE_SHARD + "-" + id, "Shard");
         Button mid = Button.of(ButtonStyle.SECONDARY, JONGOS_MID + "-" + id, "Jongo's Mid");
 
-        event.replyEmbeds(this.embed.build())
-                .addActionRow(keep, shard, mid).queue();
+        Button balti = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_BALTI + "-" + id, "Balti");
+        Button joyboy = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_JOYBOY + "-" + id, "Joyboy");
+        Button handsome = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_HANDSOME + "-" + id, "Handsome");
+        Button stolas = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_STOLAS + "-" + id, "Stolas");
+
+        event
+                .replyEmbeds(this.embed.build())
+                .addActionRow(keep, shard, mid)
+                .addActionRow(balti, joyboy, handsome, stolas)
+                .queue();
 
         this.embed = null;
         this.response = "";
@@ -78,48 +89,94 @@ public class CommandQuestions extends Command
     protected boolean buttonLogic(ButtonInteractionEvent event)
     {
         String attachmentID = event.getComponentId().split("-")[1];
-        boolean keep = event.getComponentId().startsWith(VOTE_KEEP);
-        Document data = Mongo.QuestionsVotingDB.find(Filters.eq("attachmentID", attachmentID)).first();
 
-        if(data == null) return this.error("Attachment not found!");
-        else if(event.getComponentId().startsWith(JONGOS_MID))
+        if(event.getComponentId().contains(VOTE_MOMENT))
         {
-            if(event.getUser().getId().equals("309135641453527040"))
-                this.response = data + "";
+            String type;
+            if(event.getComponentId().startsWith(VOTE_MOMENT_BALTI)) type = "balti";
+            else if(event.getComponentId().startsWith(VOTE_MOMENT_JOYBOY)) type = "joyboy";
+            else if(event.getComponentId().startsWith(VOTE_MOMENT_HANDSOME)) type = "handsome";
+            else if(event.getComponentId().startsWith(VOTE_MOMENT_STOLAS)) type = "stolas";
+            else return this.error("Invalid moment type!");
+
+            Document data = Objects.requireNonNull(Mongo.UserMomentsDB.find(Filters.eq("type", type)).first());
+
+            if(data.getList("queued", String.class).contains(attachmentID))
+                return this.error("This moment is already queued!", true);
+            else if(data.getList("attachments", String.class).contains(attachmentID))
+                return this.error("This moment has already been added!", true);
             else
             {
-                Member jongo = event.getGuild().retrieveMemberById("274068634798915584").complete();
-                this.response = new Random().nextFloat() < 0.1F ? jongo.getAsMention() + "\n" : "I agree.";
+                List<String> all = new ArrayList<>();
+                Mongo.UserMomentsDB.find().forEach(d -> {
+                    all.addAll(d.getList("queued", String.class));
+                    all.addAll(d.getList("attachments", String.class));
+                });
+
+                if(all.contains(attachmentID) || all.stream().anyMatch(s -> s.contains(attachmentID)))
+                    return this.error("Another user already has this moment either queued or as part of their attachment pool.", true);
+
+                Mongo.UserMomentsDB.updateOne(Filters.eq("type", type), Updates.push("queued", attachmentID));
+
+                Button keep = Button.of(ButtonStyle.SUCCESS, VOTE_KEEP + "-" + attachmentID, "Keep");
+                Button shard = Button.of(ButtonStyle.DANGER, VOTE_SHARD + "-" + attachmentID, "Shard");
+                Button mid = Button.of(ButtonStyle.SECONDARY, JONGOS_MID + "-" + attachmentID, "Jongo's Mid");
+
+                event.editComponents().setActionRow(keep, shard, mid).queue();
+                Member me = event.getGuild().retrieveMemberById("309135641453527040").complete();
+                event.getChannel().sendMessage(event.getUser().getAsMention() + ": Moment queued successfully! " + me.getAsMention() + " (" + attachmentID + ")").queue();
+
+                this.response = "";
+                this.embed = null;
             }
 
             return true;
         }
-        else if(data.getList("voters", String.class).contains(event.getUser().getId())) return this.error(event.getUser().getAsMention() + " You've already voted on this attachment!", true);
         else
         {
-            Bson query = Filters.eq("attachmentID", attachmentID);
+            boolean keep = event.getComponentId().startsWith(VOTE_KEEP);
+            Document data = Mongo.QuestionsVotingDB.find(Filters.eq("attachmentID", attachmentID)).first();
 
-            if(keep) Mongo.QuestionsVotingDB.updateOne(query, Updates.inc("votes_keep", 1));
-            else Mongo.QuestionsVotingDB.updateOne(query, Updates.inc("votes_shard", 1));
-
-            Mongo.QuestionsVotingDB.updateOne(query, Updates.push("voters", event.getUser().getId()));
-
-            this.ephemeral = true;
-            this.response = event.getUser().getAsMention() + " You successfully voted to " + (keep ? "keep" : "shard") + " this attachment!";
-
-            TextChannel general = event.getGuild().getChannelById(TextChannel.class, "1069872555541938297");
-            Member me = event.getGuild().retrieveMemberById("309135641453527040").complete();
-
-            if(me != null && general != null && data.getString("flag").equals("none"))
+            if(data == null) return this.error("Attachment not found!");
+            else if(event.getComponentId().startsWith(JONGOS_MID))
             {
-                int thresh = 4;
-                if(data.getInteger("votes_keep") + 1 >= thresh)
-                    general.sendMessage(me.getAsMention() + " – Attachment ID {%s} has been flagged **to be kept**!".formatted(data.getString("attachmentID"))).queue();
-                else if(data.getInteger("votes_shard") + 1 >= thresh)
-                    general.sendMessage(me.getAsMention() + " – Attachment ID {%s} has been flagged **for removal**!".formatted(data.getString("attachmentID"))).queue();
-            }
+                if(event.getUser().getId().equals("309135641453527040"))
+                    this.response = data + "";
+                else
+                {
+                    Member jongo = event.getGuild().retrieveMemberById("274068634798915584").complete();
+                    this.response = new Random().nextFloat() < 0.1F ? jongo.getAsMention() + "\n" : "I agree.";
+                }
 
-            return true;
+                return true;
+            }
+            else if(data.getList("voters", String.class).contains(event.getUser().getId())) return this.error(event.getUser().getAsMention() + " You've already voted on this attachment!", true);
+            else
+            {
+                Bson query = Filters.eq("attachmentID", attachmentID);
+
+                if(keep) Mongo.QuestionsVotingDB.updateOne(query, Updates.inc("votes_keep", 1));
+                else Mongo.QuestionsVotingDB.updateOne(query, Updates.inc("votes_shard", 1));
+
+                Mongo.QuestionsVotingDB.updateOne(query, Updates.push("voters", event.getUser().getId()));
+
+                this.ephemeral = true;
+                this.response = event.getUser().getAsMention() + " You successfully voted to " + (keep ? "keep" : "shard") + " this attachment!";
+
+                TextChannel general = event.getGuild().getChannelById(TextChannel.class, "1069872555541938297");
+                Member me = event.getGuild().retrieveMemberById("309135641453527040").complete();
+
+                if(me != null && general != null && data.getString("flag").equals("none"))
+                {
+                    int thresh = 4;
+                    if(data.getInteger("votes_keep") + 1 >= thresh)
+                        general.sendMessage(me.getAsMention() + " – Attachment ID {%s} has been flagged **to be kept**!".formatted(data.getString("attachmentID"))).queue();
+                    else if(data.getInteger("votes_shard") + 1 >= thresh)
+                        general.sendMessage(me.getAsMention() + " – Attachment ID {%s} has been flagged **for removal**!".formatted(data.getString("attachmentID"))).queue();
+                }
+
+                return true;
+            }
         }
     }
 }

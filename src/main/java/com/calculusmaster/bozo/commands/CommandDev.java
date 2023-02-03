@@ -136,6 +136,28 @@ public class CommandDev extends Command
             event.getChannel().sendMessage("Flagged **" + keep.size() + "** attachments to keep and **" + shard.size() + "** attachments to shard.").queue();
             CommandQuestions.readAttachmentsCached();
         }
+        else if(command.getAsString().startsWith("approvemoment"))
+        {
+            String type = command.getAsString().split("-")[1];
+            String id = command.getAsString().split("-")[2];
+
+            String link = Mongo.QuestionsVotingDB.find(Filters.eq("attachmentID", id)).first().getString("link");
+            Mongo.UserMomentsDB.updateOne(
+                    Filters.eq("type", type),
+                    Updates.combine(
+                            Updates.push("attachments", link),
+                            Updates.pull("queued", id)
+                    )
+            );
+        }
+        else if(command.getAsString().equals("queuedmoments"))
+        {
+            List<String> desc = new ArrayList<>();
+
+            Mongo.UserMomentsDB.find().forEach(d -> desc.add(d.getString("type") + ": " + String.join(", ", d.getList("queued", String.class))));
+
+            event.getChannel().sendMessage(String.join("\n", desc)).queue();
+        }
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").queue();
