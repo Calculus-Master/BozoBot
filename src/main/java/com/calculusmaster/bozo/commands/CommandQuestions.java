@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -73,11 +74,14 @@ public class CommandQuestions extends Command
         Button handsome = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_HANDSOME + "-" + id, "Handsome");
         Button stolas = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_STOLAS + "-" + id, "Stolas");
 
-        event
-                .replyEmbeds(this.embed.build())
-                .addActionRow(keep, shard, mid)
-                .addActionRow(balti, joyboy, handsome, stolas)
-                .queue();
+        ReplyCallbackAction a = event.replyEmbeds(this.embed.build());
+
+        //Shard/Keep
+        if(Mongo.QuestionsVotingDB.find(Filters.eq("attachmentID", id)).first().getString("flag").equals("none"))
+            a.addActionRow(keep, shard, mid);
+
+        //Moments TODO Remove if already a moment - Cache? Optimize
+        a.addActionRow(balti, joyboy, handsome, stolas).queue();
 
         this.embed = null;
         this.response = "";
