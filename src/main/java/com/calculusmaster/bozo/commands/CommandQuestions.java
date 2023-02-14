@@ -33,6 +33,9 @@ public class CommandQuestions extends Command
     public static final String VOTE_MOMENT_JOYBOY = VOTE_MOMENT + "_JOYBOY";
     public static final String VOTE_MOMENT_HANDSOME = VOTE_MOMENT + "_HANDSOME";
     public static final String VOTE_MOMENT_STOLAS = VOTE_MOMENT + "_STOLAS";
+    public static final String VOTE_MOMENT_TOX = VOTE_MOMENT + "_TOX";
+    public static final String VOTE_MOMENT_AEGIS = VOTE_MOMENT + "_AEGIS";
+    public static final String VOTE_MOMENT_HORS = VOTE_MOMENT + "_HORS";
 
     public static final List<String> ATTACHMENTS = new ArrayList<>();
 
@@ -74,6 +77,10 @@ public class CommandQuestions extends Command
         Button handsome = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_HANDSOME + "-" + id, "Handsome");
         Button stolas = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_STOLAS + "-" + id, "Stolas");
 
+        Button tox = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_TOX + "-" + id, "Tox");
+        Button aegis = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_AEGIS + "-" + id, "Aegis");
+        Button hors = Button.of(ButtonStyle.SECONDARY, VOTE_MOMENT_HORS + "-" + id, "Hors");
+
         ReplyCallbackAction a = event.replyEmbeds(this.embed.build());
 
         //Shard/Keep
@@ -81,7 +88,10 @@ public class CommandQuestions extends Command
             a.addActionRow(keep, shard, mid);
 
         //Moments TODO Remove if already a moment - Cache? Optimize
-        a.addActionRow(balti, joyboy, handsome, stolas).queue();
+        a
+                .addActionRow(balti, joyboy, handsome, stolas)
+                .addActionRow(tox, aegis, hors)
+                .queue();
 
         this.embed = null;
         this.response = "";
@@ -101,6 +111,9 @@ public class CommandQuestions extends Command
             else if(event.getComponentId().startsWith(VOTE_MOMENT_JOYBOY)) type = "joyboy";
             else if(event.getComponentId().startsWith(VOTE_MOMENT_HANDSOME)) type = "handsome";
             else if(event.getComponentId().startsWith(VOTE_MOMENT_STOLAS)) type = "stolas";
+            else if(event.getComponentId().startsWith(VOTE_MOMENT_TOX)) type = "tox";
+            else if(event.getComponentId().startsWith(VOTE_MOMENT_AEGIS)) type = "aegis";
+            else if(event.getComponentId().startsWith(VOTE_MOMENT_HORS)) type = "hors";
             else return this.error("Invalid moment type!");
 
             Document data = Objects.requireNonNull(Mongo.UserMomentsDB.find(Filters.eq("type", type)).first());
