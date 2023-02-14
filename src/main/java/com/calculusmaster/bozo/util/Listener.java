@@ -91,7 +91,7 @@ public class Listener extends ListenerAdapter
     {
         Random r = new Random();
 
-        if(r.nextFloat() < 0.7F)
+        if(r.nextFloat() < 0.05F)
         {
             List<String> pool = new ArrayList<>(List.of(
                     "U+1F913", //Nerd
