@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
@@ -87,8 +89,21 @@ public class Listener extends ListenerAdapter
     @Override
     public void onMessageReceived(MessageReceivedEvent event)
     {
-        List<String> supportedChannels = List.of("1065477877019201667", "998041223489138738", "1069872555541938297", "1053483842977136691", "1019727118868938922");
-        if(supportedChannels.contains(event.getMessage().getChannel().getId()) && new Random().nextFloat() < 0.05F)
-            event.getMessage().addReaction(Emoji.fromUnicode("U+1F913")).queue();
+        Random r = new Random();
+
+        if(r.nextFloat() < 0.7F)
+        {
+            List<String> pool = new ArrayList<>(List.of(
+                    "U+1F913", //Nerd
+                    "U+1F480", //Skull
+                    "<:ihitchamp:990700970575036496>", //Pog
+                    "<:emoji_34:1026672256866320505>" //Silly Goofy
+            ));
+
+            Collections.shuffle(pool);
+            String emoji = pool.get(0);
+
+            event.getMessage().addReaction(Emoji.fromFormatted(emoji)).queue();
+        }
     }
 }
