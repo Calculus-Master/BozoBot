@@ -99,6 +99,7 @@ public class Listener extends ListenerAdapter
             List<String> pool = new ArrayList<>(List.of(
                     "U+1F913", //Nerd
                     "U+1F480", //Skull
+                    "U+1F928", //Raised Eyebrow
                     "<:ihitchamp:990700970575036496>", //Pog
                     "<:emoji_34:1026672256866320505>" //Silly Goofy
             ));
