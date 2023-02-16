@@ -2,10 +2,7 @@ package com.calculusmaster.bozo;
 
 import com.calculusmaster.bozo.commands.CommandQuestions;
 import com.calculusmaster.bozo.commands.core.CommandData;
-import com.calculusmaster.bozo.util.BozoLogger;
-import com.calculusmaster.bozo.util.HiddenConfig;
-import com.calculusmaster.bozo.util.Listener;
-import com.calculusmaster.bozo.util.Mongo;
+import com.calculusmaster.bozo.util.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -32,6 +29,7 @@ public class BozoBot
         JDABuilder bot = JDABuilder
                 .createDefault(HiddenConfig.TOKEN)
                 .enableIntents(GatewayIntent.getIntents(GatewayIntent.DEFAULT))
+                .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .setActivity(Activity.playing("Bozostiny 2"))
                 .addEventListeners(
                         new Listener()
@@ -48,5 +46,8 @@ public class BozoBot
 
         //It's Bozo Time
         BOT_JDA.getChannelById(TextChannel.class, "1069872555541938297").sendMessage("It's Bozo'in Time.").queue();
+
+        //Events
+        Events.startNameChangeCycler();
     }
 }

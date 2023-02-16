@@ -3,6 +3,7 @@ package com.calculusmaster.bozo.commands;
 import com.calculusmaster.bozo.BozoBot;
 import com.calculusmaster.bozo.commands.core.Command;
 import com.calculusmaster.bozo.commands.core.CommandData;
+import com.calculusmaster.bozo.util.Events;
 import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
@@ -157,6 +158,14 @@ public class CommandDev extends Command
             Mongo.UserMomentsDB.find().forEach(d -> desc.add(d.getString("type") + ": " + String.join(", ", d.getList("queued", String.class))));
 
             event.getChannel().sendMessage(String.join("\n", desc)).queue();
+        }
+        else if(command.getAsString().equals("cyclenamechanger"))
+        {
+            Events.cycleNameChangeRole();
+        }
+        else if(command.getAsString().equals("checknamechanger"))
+        {
+            Events.checkNameChangeCycler();
         }
         else return this.error("Invalid command!");
 
