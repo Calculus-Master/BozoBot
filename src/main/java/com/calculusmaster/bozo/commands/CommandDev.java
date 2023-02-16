@@ -1,30 +1,23 @@
 package com.calculusmaster.bozo.commands;
 
-import com.calculusmaster.bozo.BozoBot;
 import com.calculusmaster.bozo.commands.core.Command;
 import com.calculusmaster.bozo.commands.core.CommandData;
-import com.calculusmaster.bozo.util.Events;
+import com.calculusmaster.bozo.events.GhostPingEvent;
+import com.calculusmaster.bozo.events.NameChangeRoleEvent;
 import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.bson.Document;
 
-import javax.print.Doc;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class CommandDev extends Command
 {
@@ -160,13 +153,11 @@ public class CommandDev extends Command
             event.getChannel().sendMessage(String.join("\n", desc)).queue();
         }
         else if(command.getAsString().equals("cyclenamechanger"))
-        {
-            Events.cycleNameChangeRole();
-        }
+            NameChangeRoleEvent.cycleNameChangeRole();
         else if(command.getAsString().equals("checknamechanger"))
-        {
-            Events.checkNameChangeCycler();
-        }
+            NameChangeRoleEvent.checkNameChangeCycler();
+        else if(command.getAsString().equalsIgnoreCase("ghostping"))
+            GhostPingEvent.ghostPing();
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").queue();

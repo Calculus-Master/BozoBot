@@ -101,7 +101,8 @@ public class Listener extends ListenerAdapter
                     "U+1F480", //Skull
                     "U+1F928", //Raised Eyebrow
                     "<:ihitchamp:990700970575036496>", //Pog
-                    "<:emoji_34:1026672256866320505>" //Silly Goofy
+                    "<:emoji_34:1026672256866320505>", //Silly Goofy
+                    "<:thonkvitor:1072993154468425839>" //Thonkvitor
             ));
 
             Collections.shuffle(pool);

@@ -2,7 +2,9 @@ package com.calculusmaster.bozo;
 
 import com.calculusmaster.bozo.commands.CommandQuestions;
 import com.calculusmaster.bozo.commands.core.CommandData;
+import com.calculusmaster.bozo.events.GhostPingEvent;
 import com.calculusmaster.bozo.util.*;
+import com.calculusmaster.bozo.events.NameChangeRoleEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -11,7 +13,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 public class BozoBot
@@ -48,6 +49,7 @@ public class BozoBot
         BOT_JDA.getChannelById(TextChannel.class, "1069872555541938297").sendMessage("It's Bozo'in Time.").queue();
 
         //Events
-        Events.startNameChangeCycler();
+        NameChangeRoleEvent.startNameChangeCycler();
+        GhostPingEvent.startGhostPingCycler();
     }
 }

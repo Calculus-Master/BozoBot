@@ -1,6 +1,8 @@
-package com.calculusmaster.bozo.util;
+package com.calculusmaster.bozo.events;
 
 import com.calculusmaster.bozo.BozoBot;
+import com.calculusmaster.bozo.util.BozoLogger;
+import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import net.dv8tion.jda.api.entities.Guild;
@@ -18,11 +20,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class Events
+public class NameChangeRoleEvent
 {
     public static void startNameChangeCycler()
     {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(Events::checkNameChangeCycler, 0, 1, TimeUnit.HOURS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(NameChangeRoleEvent::checkNameChangeCycler, 0, 1, TimeUnit.HOURS);
     }
 
     public static void checkNameChangeCycler()
@@ -35,12 +37,12 @@ public class Events
         {
             try
             {
-                Events.cycleNameChangeRole();
+                NameChangeRoleEvent.cycleNameChangeRole();
                 Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", 24));
             }
             catch(NullPointerException e)
             {
-                BozoLogger.error(Events.class, "NPE caught in name changer role redistribution event.");
+                BozoLogger.error(NameChangeRoleEvent.class, "NPE caught in name changer role redistribution event.");
             }
         }
         else Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", hours));
@@ -63,13 +65,13 @@ public class Events
             List<Member> members = new ArrayList<>(m);
             members.removeIf(mem -> mem.getUser().isBot() || mem.getRoles().contains(nameChangerBozoRole) || inactiveBozos.contains(mem.getId()));
 
-            BozoLogger.info(Events.class, "Loaded " + members.size() + " Members: " + m.stream().map(ISnowflake::getId).collect(Collectors.joining(", ")));
+            BozoLogger.info(NameChangeRoleEvent.class, "Loaded " + members.size() + " Members: " + m.stream().map(ISnowflake::getId).collect(Collectors.joining(", ")));
 
             //Remove all current name changers
             bozoServer.findMembersWithRoles(nameChangerBozoRole)
                     .onSuccess(currentNameChangers -> {
 
-                        BozoLogger.info(Events.class, "Found " + currentNameChangers.size() + " Current Adept Name Changers: " + currentNameChangers.stream().map(ISnowflake::getId).collect(Collectors.joining(", ")));
+                        BozoLogger.info(NameChangeRoleEvent.class, "Found " + currentNameChangers.size() + " Current Adept Name Changers: " + currentNameChangers.stream().map(ISnowflake::getId).collect(Collectors.joining(", ")));
                         currentNameChangers.forEach(cnc -> bozoServer.removeRoleFromMember(cnc, nameChangerBozoRole).queue());
 
                         //Add new name changers
@@ -79,7 +81,7 @@ public class Events
                             Member newNameChanger = members.get(r.nextInt(members.size()));
                             members.remove(newNameChanger);
 
-                            BozoLogger.info(Events.class, "Adding New Adept Name Changer: " + newNameChanger.getEffectiveName() + " (" + newNameChanger.getId() + ")");
+                            BozoLogger.info(NameChangeRoleEvent.class, "Adding New Adept Name Changer: " + newNameChanger.getEffectiveName() + " (" + newNameChanger.getId() + ")");
                             bozoServer.addRoleToMember(newNameChanger, nameChangerBozoRole).queue();
 
                             newNameChangerCount++;
