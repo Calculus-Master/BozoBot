@@ -37,7 +37,7 @@ public class GhostPingEvent
             try
             {
                 GhostPingEvent.ghostPing();
-                Mongo.Misc.updateOne(Filters.eq("type", "ghost_ping_cycler"), Updates.set("hours", 12));
+                Mongo.Misc.updateOne(Filters.eq("type", "ghost_ping_cycler"), Updates.set("hours", new Random().nextInt(10, 15)));
             }
             catch(NullPointerException e)
             {
@@ -58,7 +58,7 @@ public class GhostPingEvent
         Random r = new Random();
 
         bozoServer.findMembersWithRoles(basicBozoRole).onSuccess(m -> {
-            List<Member> members = m.stream().filter(x -> !inactiveBozos.contains(x.getId())).toList();
+            List<Member> members = m.stream().filter(x -> !x.getUser().isBot() && !inactiveBozos.contains(x.getId())).toList();
             Member victim = members.get(r.nextInt(members.size()));
 
             ghostPingChannel.sendMessage(victim.getAsMention()).delay(1, TimeUnit.SECONDS).flatMap(Message::delete).queue();

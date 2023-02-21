@@ -38,7 +38,7 @@ public class NameChangeRoleEvent
             try
             {
                 NameChangeRoleEvent.cycleNameChangeRole();
-                Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", 24));
+                Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", 13));
             }
             catch(NullPointerException e)
             {
@@ -57,7 +57,7 @@ public class NameChangeRoleEvent
 
         Random r = new Random();
 
-        int nameChangers = 2;
+        int nameChangers = 1;
 
         List<String> inactiveBozos = List.of("282742780797779968", "277272207535767554", "149137630855036928", "339137070759149570");
 

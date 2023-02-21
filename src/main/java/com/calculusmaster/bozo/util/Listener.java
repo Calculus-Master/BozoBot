@@ -89,12 +89,15 @@ public class Listener extends ListenerAdapter
         else data.getInstance().parseButtonInteraction(event);
     }
 
+    private int messageCounter = 0;
     @Override
     public void onMessageReceived(MessageReceivedEvent event)
     {
+        this.messageCounter++;
+
         Random r = new Random();
 
-        if(r.nextFloat() < 0.05F)
+        if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
         {
             List<String> pool = new ArrayList<>(List.of(
                     "U+1F913", //Nerd
@@ -102,13 +105,16 @@ public class Listener extends ListenerAdapter
                     "U+1F928", //Raised Eyebrow
                     "<:ihitchamp:990700970575036496>", //Pog
                     "<:emoji_34:1026672256866320505>", //Silly Goofy
-                    "<:thonkvitor:1072993154468425839>" //Thonkvitor
+                    "<:thonkvitor:1072993154468425839>", //Thonkvitor
+                    "<:TROLLED:994095493372199012>" //TROLLED
             ));
 
             Collections.shuffle(pool);
             String emoji = pool.get(0);
 
             event.getMessage().addReaction(Emoji.fromFormatted(emoji)).queue();
+
+            this.messageCounter = 0;
         }
     }
 }
