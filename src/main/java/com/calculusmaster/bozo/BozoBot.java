@@ -30,7 +30,7 @@ public class BozoBot
         JDABuilder bot = JDABuilder
                 .createDefault(HiddenConfig.TOKEN)
                 .enableIntents(GatewayIntent.getIntents(GatewayIntent.DEFAULT))
-                .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
                 .setActivity(Activity.playing("Bozostiny 2"))
                 .addEventListeners(
                         new Listener()

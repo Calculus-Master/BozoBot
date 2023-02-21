@@ -97,6 +97,9 @@ public class Listener extends ListenerAdapter
 
         Random r = new Random();
 
+        if(r.nextFloat() < 0.25F && event.getMessage().getContentRaw().toLowerCase().contains("rose"))
+            event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getAuthor().getName()).queue();
+
         if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
         else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
         {
