@@ -97,7 +97,8 @@ public class Listener extends ListenerAdapter
 
         Random r = new Random();
 
-        if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
+        if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
+        else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
         {
             List<String> pool = new ArrayList<>(List.of(
                     "U+1F913", //Nerd
