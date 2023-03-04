@@ -97,8 +97,8 @@ public class Listener extends ListenerAdapter
 
         Random r = new Random();
 
-        if(r.nextFloat() < 0.25F && event.getMessage().getContentRaw().toLowerCase().contains("rose"))
-            event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getAuthor().getName()).queue();
+        if(r.nextFloat() < 0.2F && event.getMessage().getContentRaw().toLowerCase().contains("rose"))
+            event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getGuild().getMemberById(event.getAuthor().getId()).getEffectiveName()).queue();
 
         if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
         else if(r.nextFloat() < 0.05) event.getChannel().sendMessage(List.of("yeah", "no", "L").get(r.nextInt(3))).queue();
