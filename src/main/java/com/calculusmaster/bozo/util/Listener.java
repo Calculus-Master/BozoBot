@@ -101,6 +101,7 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getAuthor().getName()).queue();
 
         if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
+        else if(r.nextFloat() < 0.05) event.getChannel().sendMessage(List.of("yeah", "no", "L").get(r.nextInt(3))).queue();
         else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
         {
             List<String> pool = new ArrayList<>(List.of(
