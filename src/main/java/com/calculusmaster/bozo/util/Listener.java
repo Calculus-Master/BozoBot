@@ -100,8 +100,10 @@ public class Listener extends ListenerAdapter
         if(r.nextFloat() < 0.2F && event.getMessage().getContentRaw().toLowerCase().contains("rose"))
             event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getGuild().getMemberById(event.getAuthor().getId()).getEffectiveName()).queue();
 
+        List<String> oneWordResponses = List.of("yeah", "no", "L", "lol");
+
         if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
-        else if(r.nextFloat() < 0.05) event.getChannel().sendMessage(List.of("yeah", "no", "L").get(r.nextInt(3))).queue();
+        else if(!event.getAuthor().isBot() && r.nextFloat() < 0.05) event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
         else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
         {
             List<String> pool = new ArrayList<>(List.of(
