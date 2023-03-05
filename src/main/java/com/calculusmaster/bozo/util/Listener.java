@@ -2,6 +2,7 @@ package com.calculusmaster.bozo.util;
 
 import com.calculusmaster.bozo.commands.*;
 import com.calculusmaster.bozo.commands.core.CommandData;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -98,7 +99,9 @@ public class Listener extends ListenerAdapter
         Random r = new Random();
 
         if(r.nextFloat() < 0.2F && event.getMessage().getContentRaw().toLowerCase().contains("rose"))
-            event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getGuild().getMemberById(event.getAuthor().getId()).getEffectiveName()).queue();
+        {
+            event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
+        }
 
         List<String> oneWordResponses = List.of("yeah", "no", "L", "lol");
 
