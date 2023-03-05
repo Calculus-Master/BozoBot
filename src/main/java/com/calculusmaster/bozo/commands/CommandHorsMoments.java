@@ -16,7 +16,7 @@ public class CommandHorsMoments extends Command
     public static void init()
     {
         CommandData
-                .create("aegis")
+                .create("hors")
                 .withConstructor(CommandHorsMoments::new)
                 .withCommand(Commands
                         .slash("hors", "mid")
