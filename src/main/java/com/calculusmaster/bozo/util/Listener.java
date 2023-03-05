@@ -103,7 +103,7 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
         }
 
-        List<String> oneWordResponses = List.of("yeah", "no", "L", "lol");
+        List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow");
 
         if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
         else if(!event.getAuthor().isBot() && r.nextFloat() < 0.05) event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
