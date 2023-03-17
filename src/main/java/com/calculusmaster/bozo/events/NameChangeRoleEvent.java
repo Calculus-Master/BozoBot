@@ -59,7 +59,7 @@ public class NameChangeRoleEvent
 
         int nameChangers = 1;
 
-        List<String> inactiveBozos = List.of("282742780797779968", "277272207535767554", "149137630855036928", "339137070759149570");
+        List<String> inactiveBozos = List.of("282742780797779968", "277272207535767554", "149137630855036928", "339137070759149570", "393429117774594048", "279750004653162507", "255023480334974986");
 
         bozoServer.findMembersWithRoles(basicBozoRole).onSuccess(m -> {
             List<Member> members = new ArrayList<>(m);
