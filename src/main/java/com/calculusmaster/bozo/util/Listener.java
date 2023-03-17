@@ -98,15 +98,38 @@ public class Listener extends ListenerAdapter
 
         Random r = new Random();
 
-        if(r.nextFloat() < 0.2F && event.getMessage().getContentRaw().toLowerCase().contains("rose"))
+        String content = event.getMessage().getContentRaw().toLowerCase();
+
+        if(r.nextFloat() < 0.2F && content.contains("rose"))
         {
-            event.getChannel().sendMessage("\"Strong hands he held a rose,aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
+            event.getChannel().sendMessage("\"Strong hands he held a " + (r.nextFloat() < 0.2F ? "cock" : "rose") +  ",aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
         }
 
-        List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow");
+        if(r.nextFloat() < 0.75F && content.contains("upended"))
+        {
+            if(r.nextFloat() < 0.8F)
+            {
+                event.getChannel().sendMessage("***THE UPENDED***").queue();
+                event.getChannel().sendMessage("***A TITLE SUITABLE FOR THAT WHICH TURNS WORLDS UPSIDE DOWN***").queue();
+            }
+            else
+            {
+                event.getChannel().sendMessage("***THE APPENDED***").queue();
+                event.getChannel().sendMessage("***A TITLE SUITABLE FOR THAT WHICH EXTENDS***").queue();
+            }
+        }
 
         if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
-        else if(!event.getAuthor().isBot() && r.nextFloat() < 0.05) event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
+        else if(!event.getAuthor().isBot() && r.nextFloat() < 0.05)
+        {
+            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar");
+
+            if(event.getAuthor().getId().equals("490401640843706368") && r.nextFloat() < 0.25F)
+                event.getChannel().sendMessage("grape").queue();
+            else if(event.getAuthor().getId().equals("776195690149576704") && r.nextFloat() < 0.25F)
+                event.getChannel().sendMessage("ok pvp bot").queue();
+            else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
+        }
         else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
         {
             List<String> pool = new ArrayList<>(List.of(

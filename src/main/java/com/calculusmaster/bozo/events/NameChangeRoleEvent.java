@@ -84,10 +84,9 @@ public class NameChangeRoleEvent
                             BozoLogger.info(NameChangeRoleEvent.class, "Adding New Adept Name Changer: " + newNameChanger.getEffectiveName() + " (" + newNameChanger.getId() + ")");
                             bozoServer.addRoleToMember(newNameChanger, nameChangerBozoRole).queue();
 
+                            bozoChannel.sendMessage(newNameChanger.getAsMention() + " - You're now an Adept Name Changer.").queue();
                             newNameChangerCount++;
                         }
-
-                        bozoChannel.sendMessage("<@309135641453527040> New Adept Name Changers have been selected.").queue();
                     })
                     .onError(t -> bozoChannel.sendMessage("<@309135641453527040> Failed removing role from users.").queue());
         }).onError(t -> bozoChannel.sendMessage("<@309135641453527040> Failed giving role to users.").queue());
