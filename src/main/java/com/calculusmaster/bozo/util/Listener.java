@@ -122,7 +122,7 @@ public class Listener extends ListenerAdapter
         if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
         else if(!event.getAuthor().isBot() && r.nextFloat() < 0.05)
         {
-            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar");
+            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh");
 
             if(event.getAuthor().getId().equals("490401640843706368") && r.nextFloat() < 0.25F)
                 event.getChannel().sendMessage("grape").queue();
