@@ -38,7 +38,7 @@ public class NameChangeRoleEvent
             try
             {
                 NameChangeRoleEvent.cycleNameChangeRole();
-                Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", 13));
+                Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", 36));
             }
             catch(NullPointerException e)
             {
