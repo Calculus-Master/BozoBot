@@ -124,10 +124,14 @@ public class Listener extends ListenerAdapter
         {
             List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh");
 
-            if(event.getAuthor().getId().equals("490401640843706368") && r.nextFloat() < 0.25F)
+            if(event.getAuthor().getId().equals("490401640843706368") && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage("grape").queue();
-            else if(event.getAuthor().getId().equals("776195690149576704") && r.nextFloat() < 0.25F)
+            else if(event.getAuthor().getId().equals("776195690149576704") && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage("ok pvp bot").queue();
+            else if(event.getAuthor().getId().equals("429601532363931659") && r.nextFloat() < 0.15F)
+                event.getChannel().sendMessage("it really is that shrimple").queue();
+            else if(event.getAuthor().getId().equals("160843328898727936") && r.nextFloat() < 0.15F)
+                event.getChannel().sendMessage("ikr, hunters are so mid").queue();
             else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
         }
         else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
