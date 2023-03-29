@@ -39,6 +39,7 @@ public class Listener extends ListenerAdapter
         CommandToxMoments.init();
         CommandAegisMoments.init();
         CommandHorsMoments.init();
+        CommandSuggestBozo.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
