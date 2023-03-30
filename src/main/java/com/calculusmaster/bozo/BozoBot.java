@@ -1,5 +1,6 @@
 package com.calculusmaster.bozo;
 
+import com.calculusmaster.bozo.commands.CommandLFG;
 import com.calculusmaster.bozo.commands.CommandQuestions;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import com.calculusmaster.bozo.events.GhostPingEvent;
@@ -51,5 +52,6 @@ public class BozoBot
         //Events
         NameChangeRoleEvent.startNameChangeCycler();
         GhostPingEvent.startGhostPingCycler();
+        CommandLFG.cleanUpPosts();
     }
 }
