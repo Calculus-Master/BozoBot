@@ -39,9 +39,15 @@ public class CommandSuggestBozo extends Command
 
             event.reply("Setting up a vote!").setEphemeral(true).queue();
 
-            event.getChannel().sendMessage("Should **" + targetUser + "** become a bozo? (Suggestion By: " + voter + ")").queue(m -> {
-                m.addReaction(Emoji.fromFormatted("U+1F44D")).queue();
-                m.addReaction(Emoji.fromFormatted("U+1F44E")).queue();
+            String yes = "<:thunmb:1037162867276906557>";
+            String yesNoRole = "<:thonkvitor:1072993154468425839>";
+            String no = "<:JongoNuhUh:1089413964745683006>";
+
+            event.getChannel().sendMessage("Should **" + targetUser + "** become a bozo? (Suggestion By: " + voter + ")\n").queue(m -> {
+                m.addReaction(Emoji.fromFormatted(yes)).queue();
+                m.addReaction(Emoji.fromFormatted(yesNoRole)).queue();
+                m.addReaction(Emoji.fromFormatted(no)).queue();
+                m.pin().queue();
             });
         }
 

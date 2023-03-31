@@ -93,7 +93,7 @@ public class CommandLFG extends Command
             OptionMapping activityOption = event.getOption("activity");
             OptionMapping timeOption = event.getOption("time");
 
-            if(activityOption == null || timeOption == null) return this.error("Either activity or time option is missing.");
+            if(activityOption == null || timeOption == null) return this.error("Either activity or time option is missing.", true);
             else if(!event.getChannel().getId().equals(LFG_CHANNEL)) return this.error("Use " + event.getGuild().getChannelById(TextChannel.class, "1020902364036730920").getAsMention() + ".");
 
             Random r = new Random();
@@ -101,7 +101,7 @@ public class CommandLFG extends Command
             String postID = IntStream.range(0, 8).mapToObj(i -> String.valueOf(r.nextInt(10))).collect(Collectors.joining(""));
 
             String time = this.getUnixTimestamp(timeOption.getAsString());
-            if(time.isEmpty()) return this.error("Invalid input. Supported formats are `XdYh` and `Xh`, where X and Y are numbers.");
+            if(time.isEmpty()) return this.error("Invalid input. Supported formats are `XdYh` and `Xh`, where X and Y are numbers.", true);
 
             EmbedBuilder embed = new EmbedBuilder()
                     .addField("Activity", "***" + activityOption.getAsString() + "***", false)
@@ -143,14 +143,14 @@ public class CommandLFG extends Command
             if(postIDOption == null)
                 return this.error("Post ID option missing.");
             else if(activityOption == null && timeOption == null)
-                return this.error("You must specify an option to edit, either the activity name or time.");
+                return this.error("You must specify an option to edit, either the activity name or time.", true);
 
             Document data = Mongo.LFGPostDB.find(Filters.eq("postID", postIDOption.getAsString())).first();
             if(data == null)
-                return this.error("Invalid Post ID");
+                return this.error("Invalid Post ID", true);
 
             if(!event.getUser().getId().equals(data.getString("poster")))
-                return this.error("Only the creator of the LFG post (<@" + data.getString("poster") + ">) can edit it.");
+                return this.error("Only the creator of the LFG post (<@" + data.getString("poster") + ">) can edit it.", true);
 
             BiConsumer<Message, Pair<String, String>> editer = (message, pair) -> {
                 MessageEmbed original = message.getEmbeds().get(0);
@@ -233,7 +233,7 @@ public class CommandLFG extends Command
         String postID = info[2];
         Document data = Mongo.LFGPostDB.find(Filters.eq("postID", postID)).first();
 
-        if(data == null) return this.error("LFG Post not found. Try again in a couple seconds.");
+        if(data == null) return this.error("LFG Post not found. The LFG Post most likely has expired, but, if not, try again in a couple seconds.", true);
 
         String userID = event.getUser().getId();
 
