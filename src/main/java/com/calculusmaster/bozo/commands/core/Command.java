@@ -39,7 +39,7 @@ public abstract class Command
     //For Subclasses
     protected boolean error(String errorMessage)
     {
-        return this.error(errorMessage, false);
+        return this.error(errorMessage, true);
     }
 
     protected boolean error(String errorMessage, boolean ephemeral)
