@@ -3,6 +3,7 @@ package com.calculusmaster.bozo.commands;
 import com.calculusmaster.bozo.BozoBot;
 import com.calculusmaster.bozo.commands.core.Command;
 import com.calculusmaster.bozo.commands.core.CommandData;
+import com.calculusmaster.bozo.util.BozoLogger;
 import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
@@ -75,10 +76,17 @@ public class CommandLFG extends Command
             Mongo.LFGPostDB.find().forEach(d -> {
                 String timestamp = d.getString("time");
 
-                String target = timestamp.substring(timestamp.indexOf(":") + 1, timestamp.lastIndexOf(":"));
-                long savedTime = Long.parseLong(target);
+                try
+                {
+                    String target = timestamp.substring(timestamp.indexOf(":") + 1, timestamp.lastIndexOf(":"));
+                    long savedTime = Long.parseLong(target);
 
-                if(current > savedTime) toDelete.add(d.getString("postID"));
+                    if(current > savedTime) toDelete.add(d.getString("postID"));
+                }
+                catch(Exception e)
+                {
+                    BozoLogger.warn(CommandLFG.class, "Skipping automatic deletion of LFG Post " + d.getString("postID") + " due to non-numeric timestamp.");
+                }
             });
 
             toDelete.forEach(s -> Mongo.LFGPostDB.deleteOne(Filters.eq("postID", s)));
@@ -108,7 +116,7 @@ public class CommandLFG extends Command
                     .addField("Time", time, true)
                     .addField("Post ID", postID, true)
                     .addBlankField(false)
-                    .addField("Yes", "None", true)
+                    .addField("Yes", this.player.getAsTag(), true)
                     .addField("Maybe", "None", true)
                     .addField("No", "None", true);
 
@@ -118,7 +126,7 @@ public class CommandLFG extends Command
                     .append("poster", event.getUser().getId())
                     .append("activity", activityOption.getAsString())
                     .append("time", time)
-                    .append("yes", new ArrayList<String>())
+                    .append("yes", List.of(this.player.getAsTag()))
                     .append("maybe", new ArrayList<String>())
                     .append("no", new ArrayList<String>());
 
@@ -378,6 +386,6 @@ public class CommandLFG extends Command
 
             return "<t:" + epoch + ":F>";
         }
-        else return "";
+        else return input;
     }
 }
