@@ -126,7 +126,7 @@ public class CommandLFG extends Command
                     .append("poster", event.getUser().getId())
                     .append("activity", activityOption.getAsString())
                     .append("time", time)
-                    .append("yes", List.of(this.player.getAsTag()))
+                    .append("yes", List.of(this.player.getId()))
                     .append("maybe", new ArrayList<String>())
                     .append("no", new ArrayList<String>());
 
