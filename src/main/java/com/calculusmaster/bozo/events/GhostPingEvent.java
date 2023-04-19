@@ -51,7 +51,7 @@ public class GhostPingEvent
     {
         Guild bozoServer = Objects.requireNonNull(BozoBot.BOT_JDA.getGuildById("983450314885713940"));
         Role basicBozoRole = bozoServer.getRoleById("983456276803624961");
-        TextChannel ghostPingChannel = Objects.requireNonNull(bozoServer.getTextChannelById("983450314885713943"));
+        TextChannel ghostPingChannel = Objects.requireNonNull(bozoServer.getTextChannelById("1089732136359186432"));
 
         List<String> inactiveBozos = List.of("282742780797779968", "277272207535767554", "149137630855036928", "339137070759149570");
 
@@ -61,7 +61,7 @@ public class GhostPingEvent
             List<Member> members = m.stream().filter(x -> !x.getUser().isBot() && !inactiveBozos.contains(x.getId())).toList();
             Member victim = members.get(r.nextInt(members.size()));
 
-            ghostPingChannel.sendMessage(victim.getAsMention()).delay(1, TimeUnit.SECONDS).flatMap(Message::delete).queue();
+            ghostPingChannel.sendMessage(victim.getAsMention()).queue();
 
             BozoLogger.info(GhostPingEvent.class, "Ghost pinged " + victim.getUser().getAsTag() + " (" + victim.getId() + ")!");
         }).onError(t -> BozoLogger.error(GhostPingEvent.class, "Error in ghost ping event: " + t.getMessage()));

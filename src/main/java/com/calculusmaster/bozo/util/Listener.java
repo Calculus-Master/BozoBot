@@ -107,7 +107,7 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage("\"Strong hands he held a " + (r.nextFloat() < 0.2F ? "cock" : "rose") +  ",aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
         }
 
-        if(r.nextFloat() < 0.75F && content.contains("upended"))
+        if(!event.getAuthor().isBot() && r.nextFloat() < 0.75F && content.contains("upended"))
         {
             if(r.nextFloat() < 0.8F)
             {
