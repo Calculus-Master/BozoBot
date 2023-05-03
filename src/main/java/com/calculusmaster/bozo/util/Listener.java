@@ -12,10 +12,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -134,6 +131,8 @@ public class Listener extends ListenerAdapter
                 event.getChannel().sendMessage("it really is that shrimple").queue();
             else if(event.getAuthor().getId().equals("160843328898727936") && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage("ikr, hunters are so mid").queue();
+            else if(Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
+                event.getChannel().sendMessage("join clan bozo").queue();
             else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
         }
         else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
