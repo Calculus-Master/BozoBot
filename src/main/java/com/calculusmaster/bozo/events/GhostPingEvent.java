@@ -58,7 +58,7 @@ public class GhostPingEvent
         Random r = new Random();
 
         bozoServer.findMembersWithRoles(basicBozoRole).onSuccess(m -> {
-            List<Member> members = m.stream().filter(x -> !x.getUser().isBot() && !inactiveBozos.contains(x.getId())).toList();
+            List<Member> members = m.stream().filter(x -> !inactiveBozos.contains(x.getId())).toList();
             Member victim = members.get(r.nextInt(members.size()));
 
             ghostPingChannel.sendMessage(victim.getAsMention()).queue();

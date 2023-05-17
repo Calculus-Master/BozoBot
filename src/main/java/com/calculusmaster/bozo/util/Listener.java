@@ -131,6 +131,8 @@ public class Listener extends ListenerAdapter
                 event.getChannel().sendMessage("it really is that shrimple").queue();
             else if(event.getAuthor().getId().equals("160843328898727936") && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage("ikr, hunters are so mid").queue();
+            else if(event.getAuthor().getId().equals("752237938779226173") && r.nextFloat() < 0.15F)
+                event.getChannel().sendMessage("chainsword>chainsawman").queue();
             else if(Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
                 event.getChannel().sendMessage("join clan bozo").queue();
             else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
