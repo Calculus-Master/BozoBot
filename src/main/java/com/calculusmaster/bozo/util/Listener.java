@@ -121,7 +121,7 @@ public class Listener extends ListenerAdapter
         if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
         else if(!event.getAuthor().isBot() && r.nextFloat() < 0.05)
         {
-            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh");
+            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye");
 
             if(event.getAuthor().getId().equals("490401640843706368") && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage("grape").queue();
@@ -133,10 +133,16 @@ public class Listener extends ListenerAdapter
                 event.getChannel().sendMessage("ikr, hunters are so mid").queue();
             else if(event.getAuthor().getId().equals("752237938779226173") && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage("chainsword>chainsawman").queue();
+            else if(event.getAuthor().getId().equals("274068634798915584") && r.nextFloat() < 0.15F)
+                event.getChannel().sendMessage("misinfo!!!!!").queue();
+            else if(event.getAuthor().getId().equals("445222471332003840") && r.nextFloat() < 0.15F)
+                event.getChannel().sendMessage("demo best perk").queue();
             else if(Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
                 event.getChannel().sendMessage("join clan bozo").queue();
             else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
         }
+        else if(event.getAuthor().isBot() && event.getAuthor().getId().equals("1069804190458708049") && r.nextFloat() < 0.05F && !content.equalsIgnoreCase("best bot"))
+            event.getChannel().sendMessage("best bot").queue();
         else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
         {
             List<String> pool = new ArrayList<>(List.of(
