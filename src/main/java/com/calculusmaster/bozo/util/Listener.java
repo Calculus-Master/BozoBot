@@ -147,7 +147,7 @@ public class Listener extends ListenerAdapter
             }
         }
 
-        if(r.nextFloat() < 0.1F && content.contains("mods"))
+        if(isBozocord && r.nextFloat() < 0.1F && content.contains("mods"))
             event.getChannel().sendMessage(event.getAuthor().getAsMention() + " they're watching you...").queue();
 
         //General Responses
