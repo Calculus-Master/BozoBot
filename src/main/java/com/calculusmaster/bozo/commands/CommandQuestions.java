@@ -16,9 +16,12 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.io.File;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
