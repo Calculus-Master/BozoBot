@@ -24,9 +24,8 @@ public class Mongo
 
     public static void main(String[] args)
     {
-        Mongo.UserMomentsDB.insertOne(new Document("type", "balti").append("attachments", new ArrayList<>()).append("queued", new ArrayList<>()));
-        Mongo.UserMomentsDB.insertOne(new Document("type", "joyboy").append("attachments", new ArrayList<>()).append("queued", new ArrayList<>()));
-        Mongo.UserMomentsDB.insertOne(new Document("type", "handsome").append("attachments", new ArrayList<>()).append("queued", new ArrayList<>()));
-        Mongo.UserMomentsDB.insertOne(new Document("type", "stolas").append("attachments", new ArrayList<>()).append("queued", new ArrayList<>()));
+
+
+
     }
 }

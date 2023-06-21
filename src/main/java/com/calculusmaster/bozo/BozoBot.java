@@ -9,12 +9,14 @@ import com.calculusmaster.bozo.events.NameChangeRoleEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BozoBot
 {
@@ -43,8 +45,11 @@ public class BozoBot
 
         BozoLogger.init("Slash Commands", Listener::init);
 
-        BOT_JDA.getGuildById("983450314885713940").updateCommands()
-                .addCommands(COMMANDS.stream().map(CommandData::getSlashCommandData).toList()).queue();
+        Guild bozocord = Objects.requireNonNull(BOT_JDA.getGuildById("983450314885713940"));
+        Guild onyxhub = BOT_JDA.getGuildById("878207461117550642");
+
+        bozocord.updateCommands().addCommands(COMMANDS.stream().map(CommandData::getSlashCommandData).toList()).queue();
+        if(onyxhub != null) onyxhub.updateCommands().addCommands(COMMANDS.stream().filter(cd -> !cd.isOnlyBozocord()).map(CommandData::getSlashCommandData).toList()).queue();
 
         //It's Bozo Time
         BOT_JDA.getChannelById(TextChannel.class, "1069872555541938297").sendMessage("It's Bozo'in Time.").queue();

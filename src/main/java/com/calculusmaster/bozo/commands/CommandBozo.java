@@ -21,6 +21,7 @@ public class CommandBozo extends Command
                         .slash("bozo", "Are you a bozo?")
                         .addOption(OptionType.USER, "user", "[Optional] Check the bozo status of a user.", false)
                 )
+                .setNotOnlyBozocord()
                 .register();
     }
 

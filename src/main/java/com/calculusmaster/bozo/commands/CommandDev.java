@@ -158,9 +158,22 @@ public class CommandDev extends Command
             NameChangeRoleEvent.checkNameChangeCycler();
         else if(command.getAsString().equalsIgnoreCase("ghostping"))
             GhostPingEvent.ghostPing();
+        else if(command.getAsString().equals("autoapprovemoments"))
+        {
+            Mongo.UserMomentsDB.find().forEach(d ->
+            {
+                String type = d.getString("type");
+                d.getList("queued", String.class).forEach(attachmentID ->
+                {
+                    String link = Mongo.QuestionsVotingDB.find(Filters.eq("attachmentID", attachmentID)).first().getString("link");
+                    Mongo.UserMomentsDB.updateOne(Filters.eq("type", type), Updates.push("attachments", link));
+                });
+                Mongo.UserMomentsDB.updateOne(Filters.eq(d.getString("type"), type), Updates.set("queued", new ArrayList<>()));
+            });
+        }
         else return this.error("Invalid command!");
 
-        event.reply(event.getUser().getAsMention() + " Done!").queue();
+        event.reply(event.getUser().getAsMention() + " Done!").setEphemeral(true).queue();
         return true;
     }
 }

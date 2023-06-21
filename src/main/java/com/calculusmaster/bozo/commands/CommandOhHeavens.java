@@ -16,6 +16,7 @@ public class CommandOhHeavens extends Command
                 .withCommand(Commands
                         .slash("ohheavens", "( ͡° ͜ʖ ͡°)")
                 )
+                .setNotOnlyBozocord()
                 .register();
     }
 

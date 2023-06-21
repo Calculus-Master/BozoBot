@@ -15,6 +15,8 @@ public class CommandData
 
     private List<String> buttonIDs;
 
+    private boolean onlyBozocord;
+
     private CommandData(String commandName)
     {
         this.commandName = commandName;
@@ -22,6 +24,8 @@ public class CommandData
         this.slashCommandData = null;
 
         this.buttonIDs = List.of();
+
+        this.onlyBozocord = true;
     }
 
     public void register()
@@ -52,6 +56,12 @@ public class CommandData
         return this;
     }
 
+    public CommandData setNotOnlyBozocord()
+    {
+        this.onlyBozocord = false;
+        return this;
+    }
+
     public SlashCommandData getSlashCommandData()
     {
         return this.slashCommandData;
@@ -72,5 +82,10 @@ public class CommandData
     public String getCommandName()
     {
         return this.commandName;
+    }
+
+    public boolean isOnlyBozocord()
+    {
+        return this.onlyBozocord;
     }
 }

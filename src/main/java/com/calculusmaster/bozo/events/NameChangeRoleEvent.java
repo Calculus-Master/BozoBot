@@ -38,7 +38,8 @@ public class NameChangeRoleEvent
             try
             {
                 NameChangeRoleEvent.cycleNameChangeRole();
-                Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", 36));
+
+                Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", getTime()));
             }
             catch(NullPointerException e)
             {
@@ -46,6 +47,11 @@ public class NameChangeRoleEvent
             }
         }
         else Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", hours));
+    }
+
+    public static int getTime()
+    {
+        return Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "name_changer_time")).first()).getInteger("time");
     }
 
     public static void cycleNameChangeRole() throws NullPointerException
@@ -59,7 +65,7 @@ public class NameChangeRoleEvent
 
         int nameChangers = 1;
 
-        List<String> inactiveBozos = List.of("282742780797779968", "277272207535767554", "149137630855036928", "339137070759149570", "393429117774594048", "279750004653162507", "255023480334974986");
+        List<String> inactiveBozos = Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "inactive_users_namechange")).first()).getList("list", String.class);
 
         bozoServer.findMembersWithRoles(basicBozoRole).onSuccess(m -> {
             List<Member> members = new ArrayList<>(m);

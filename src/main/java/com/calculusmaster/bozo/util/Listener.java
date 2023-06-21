@@ -11,8 +11,10 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.bson.Document;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,9 @@ public class Listener extends ListenerAdapter
         CommandHorsMoments.init();
         CommandSuggestBozo.init();
         CommandLFG.init();
+        CommandRemoveNameChanger.init();
+
+        Listener.registerResponses();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
@@ -89,20 +94,44 @@ public class Listener extends ListenerAdapter
         else data.getInstance().parseButtonInteraction(event);
     }
 
-    private int messageCounter = 0;
+    private static final Map<String, CounterData> COUNTER_DATA_MAP = new HashMap<>();
+    private static final Map<String, String> UNIQUE_RESPONSES = new HashMap<>();
+
+    private static void registerResponses()
+    {
+        UNIQUE_RESPONSES.put("490401640843706368", "grape");
+        UNIQUE_RESPONSES.put("776195690149576704", "ok pvp bot");
+        UNIQUE_RESPONSES.put("429601532363931659", "it really is that shrimple");
+        UNIQUE_RESPONSES.put("160843328898727936", "ikr, hunters are so mid");
+        UNIQUE_RESPONSES.put("752237938779226173", "chainsword>chainsawman");
+        UNIQUE_RESPONSES.put("274068634798915584", "misinfo!!!!!");
+        UNIQUE_RESPONSES.put("445222471332003840", "demo best perk");
+    }
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event)
     {
-        this.messageCounter++;
-
         Random r = new Random();
-
+        String guildID = event.getGuild().getId();
+        String authorID = event.getAuthor().getId();
         String content = event.getMessage().getContentRaw().toLowerCase();
 
-        if(r.nextFloat() < 0.2F && content.contains("rose"))
+        boolean isBozocord = guildID.equals("983450314885713940");
+
+        if(!COUNTER_DATA_MAP.containsKey(guildID)) COUNTER_DATA_MAP.put(guildID, new CounterData());
+        CounterData data = COUNTER_DATA_MAP.get(guildID);
+        data.update();
+
+        //Pin
+        if(r.nextInt(8192) == 0)
         {
-            event.getChannel().sendMessage("\"Strong hands he held a " + (r.nextFloat() < 0.2F ? "cock" : "rose") +  ",aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
+            event.getMessage().pin().queue();
+            return;
         }
+
+        //Content-Based Responses
+        if(r.nextFloat() < 0.2F && content.contains("rose"))
+            event.getChannel().sendMessage("\"Strong hands he held a " + (r.nextFloat() < 0.2F ? "cock" : "rose") +  ",aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
 
         if(!event.getAuthor().isBot() && r.nextFloat() < 0.75F && content.contains("upended"))
         {
@@ -118,32 +147,25 @@ public class Listener extends ListenerAdapter
             }
         }
 
-        if(r.nextInt(8192) == 0) event.getMessage().pin().queue();
-        else if(!event.getAuthor().isBot() && r.nextFloat() < 0.05)
-        {
-            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye");
+        if(r.nextFloat() < 0.1F && content.contains("mods"))
+            event.getChannel().sendMessage(event.getAuthor().getAsMention() + " they're watching you...").queue();
 
-            if(event.getAuthor().getId().equals("490401640843706368") && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage("grape").queue();
-            else if(event.getAuthor().getId().equals("776195690149576704") && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage("ok pvp bot").queue();
-            else if(event.getAuthor().getId().equals("429601532363931659") && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage("it really is that shrimple").queue();
-            else if(event.getAuthor().getId().equals("160843328898727936") && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage("ikr, hunters are so mid").queue();
-            else if(event.getAuthor().getId().equals("752237938779226173") && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage("chainsword>chainsawman").queue();
-            else if(event.getAuthor().getId().equals("274068634798915584") && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage("misinfo!!!!!").queue();
-            else if(event.getAuthor().getId().equals("445222471332003840") && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage("demo best perk").queue();
-            else if(Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
+        //General Responses
+        if(data.messageCounterResponses >= 5 && !event.getAuthor().isBot() && r.nextFloat() < 0.05F)
+        {
+            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye", "always", "definitely", "totally", "sure", "NOPE", "...", "never", "oh", event.getAuthor().getAsMention());
+
+            if(UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
+                event.getChannel().sendMessage(UNIQUE_RESPONSES.get(authorID)).queue();
+            else if(isBozocord && Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
                 event.getChannel().sendMessage("join clan bozo").queue();
             else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
         }
         else if(event.getAuthor().isBot() && event.getAuthor().getId().equals("1069804190458708049") && r.nextFloat() < 0.05F && !content.equalsIgnoreCase("best bot"))
             event.getChannel().sendMessage("best bot").queue();
-        else if(this.messageCounter >= 5 && r.nextFloat() < 0.05F)
+
+        //General Reactions
+        if(data.messageCounterReactions >= 5 && r.nextFloat() < 0.05F)
         {
             List<String> pool = new ArrayList<>(List.of(
                     "U+1F913", //Nerd
@@ -160,7 +182,36 @@ public class Listener extends ListenerAdapter
 
             event.getMessage().addReaction(Emoji.fromFormatted(emoji)).queue();
 
-            this.messageCounter = 0;
+            data.messageCounterReactions = 0;
+        }
+
+        //Updating Questions Voting
+        if(isBozocord && event.getChannel().getId().equals("998041223489138738") && !event.getMessage().getAttachments().isEmpty())
+            event.getMessage().getAttachments().forEach(a ->
+            {
+                Document attachmentData = new Document(new LinkedHashMap<>());
+
+                attachmentData.append("attachmentID", a.getId());
+                attachmentData.append("link", a.getUrl());
+                attachmentData.append("voters", new ArrayList<>());
+                attachmentData.append("votes_keep", 0);
+                attachmentData.append("votes_shard", 0);
+                attachmentData.append("flag", "none");
+
+                Mongo.QuestionsVotingDB.insertOne(attachmentData);
+                BozoLogger.info(Listener.class, "Inserted new attachment data into QuestionsVotingDB (ID: " + a.getId() + ").");
+            });
+    }
+
+    private static class CounterData
+    {
+        private int messageCounterReactions = 0;
+        private int messageCounterResponses = 0;
+
+        public void update()
+        {
+            this.messageCounterReactions++;
+            this.messageCounterResponses++;
         }
     }
 }
