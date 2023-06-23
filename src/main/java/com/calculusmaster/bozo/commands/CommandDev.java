@@ -4,6 +4,7 @@ import com.calculusmaster.bozo.commands.core.Command;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import com.calculusmaster.bozo.events.GhostPingEvent;
 import com.calculusmaster.bozo.events.NameChangeRoleEvent;
+import com.calculusmaster.bozo.util.BotConfig;
 import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
@@ -170,6 +171,15 @@ public class CommandDev extends Command
                 });
                 Mongo.UserMomentsDB.updateOne(Filters.eq(d.getString("type"), type), Updates.set("queued", new ArrayList<>()));
             });
+        }
+        else if(command.getAsString().equals("updateconfig"))
+        {
+            BotConfig.init();
+        }
+        else if(command.getAsString().startsWith("addreaction"))
+        {
+            String reactionId = command.getAsString().split("-")[1];
+            Mongo.Misc.updateOne(Filters.eq("type", "config"), Updates.push("reactions_pool", reactionId));
         }
         else return this.error("Invalid command!");
 

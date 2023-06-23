@@ -176,18 +176,7 @@ public class Listener extends ListenerAdapter
         //General Reactions
         if(data.messageCounterReactions >= 5 && r.nextFloat() < 0.05F)
         {
-            List<String> pool = new ArrayList<>(List.of(
-                    "U+1F913", //Nerd
-                    "U+1F480", //Skull
-                    "U+1F928", //Raised Eyebrow
-                    "<:ihitchamp:990700970575036496>", //Pog
-                    "<:emoji_34:1026672256866320505>", //Silly Goofy
-                    "<:thonkvitor:1072993154468425839>", //Thonkvitor
-                    "<:TROLLED:994095493372199012>" //TROLLED
-            ));
-
-            Collections.shuffle(pool);
-            String emoji = pool.get(0);
+            String emoji = BotConfig.REACTIONS_POOL.get(r.nextInt(BotConfig.REACTIONS_POOL.size()));
 
             event.getMessage().addReaction(Emoji.fromFormatted(emoji)).queue();
 
