@@ -130,6 +130,13 @@ public class Listener extends ListenerAdapter
         }
 
         //Content-Based Responses
+        if(content.length() >= 500)
+        {
+            event.getChannel().sendMessage("i ain't reading all that").queue();
+            event.getChannel().sendMessage("i'm happy for you tho").queue();
+            event.getChannel().sendMessage("or sorry that happened").queue();
+        }
+
         if(r.nextFloat() < 0.2F && content.contains("rose"))
             event.getChannel().sendMessage("\"Strong hands he held a " + (r.nextFloat() < 0.2F ? "cock" : "rose") +  ",aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
 
@@ -160,6 +167,8 @@ public class Listener extends ListenerAdapter
             else if(isBozocord && Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
                 event.getChannel().sendMessage("join clan bozo").queue();
             else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
+
+            data.messageCounterResponses = 0;
         }
         else if(event.getAuthor().isBot() && event.getAuthor().getId().equals("1069804190458708049") && r.nextFloat() < 0.05F && !content.equalsIgnoreCase("best bot"))
             event.getChannel().sendMessage("best bot").queue();
