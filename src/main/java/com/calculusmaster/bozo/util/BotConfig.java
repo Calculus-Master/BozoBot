@@ -10,11 +10,13 @@ import java.util.Objects;
 public class BotConfig
 {
     public static List<String> REACTIONS_POOL = new ArrayList<>();
+    public static List<String> VALID_LFG_CHANNELS = new ArrayList<>();
 
     public static void init()
     {
         Document config = Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "config")).first());
 
         REACTIONS_POOL.addAll(config.getList("reactions_pool", String.class));
+        VALID_LFG_CHANNELS.addAll(config.getList("lfg_channels", String.class));
     }
 }

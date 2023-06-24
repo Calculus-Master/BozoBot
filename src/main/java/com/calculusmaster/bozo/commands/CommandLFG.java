@@ -3,16 +3,18 @@ package com.calculusmaster.bozo.commands;
 import com.calculusmaster.bozo.BozoBot;
 import com.calculusmaster.bozo.commands.core.Command;
 import com.calculusmaster.bozo.commands.core.CommandData;
+import com.calculusmaster.bozo.util.BotConfig;
 import com.calculusmaster.bozo.util.BozoLogger;
+import com.calculusmaster.bozo.util.LFGPost;
 import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import kotlin.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -24,27 +26,18 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import javax.print.Doc;
-import java.awt.*;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class CommandLFG extends Command
 {
     public static final String LFG_POST_BUTTON = "LFG-POST";
-    public static final String LFG_CHANNEL = "1020902364036730920";
 
     public static void init()
     {
@@ -65,6 +58,7 @@ public class CommandLFG extends Command
                                         .addOption(OptionType.STRING, "time", "Edit the time of the LFG post.", false)
                         )
                 )
+                .setNotOnlyBozocord()
                 .register();
     }
 
@@ -102,126 +96,93 @@ public class CommandLFG extends Command
             OptionMapping timeOption = event.getOption("time");
 
             if(activityOption == null || timeOption == null) return this.error("Either activity or time option is missing.", true);
-            else if(!event.getChannel().getId().equals(LFG_CHANNEL)) return this.error("Use " + event.getGuild().getChannelById(TextChannel.class, "1020902364036730920").getAsMention() + ".");
+            else if(!BotConfig.VALID_LFG_CHANNELS.contains(event.getChannel().getId()))
+                return this.error("This command can only be used in one of these channels: " + BotConfig.VALID_LFG_CHANNELS.stream().map(s -> "<#" + s + ">").collect(Collectors.joining(" ")) + ".", true);
 
-            Random r = new Random();
+            LFGPost post = new LFGPost();
 
-            String postID = IntStream.range(0, 8).mapToObj(i -> String.valueOf(r.nextInt(10))).collect(Collectors.joining(""));
+            if(!post.setTime(timeOption.getAsString()))
+                return this.error("""
+                        Invalid input.
+                        Supported formats are:
+                         - A unix timestamp specifying the exact time for the activity.
+                         - `XdYh`: X days and Y hours from now.
+                         - `Xh`: X hours from now.
+                         - Any text: Custom "time" that will be displayed as-is.
+                        """);
 
-            String time = this.getUnixTimestamp(timeOption.getAsString());
-            if(time.isEmpty()) return this.error("Invalid input. Supported formats are `XdYh` and `Xh`, where X and Y are numbers.", true);
+            post.setActivity(activityOption.getAsString());
+            post.setPostUser(event.getUser());
 
-            EmbedBuilder embed = new EmbedBuilder()
-                    .addField("Activity", "***" + activityOption.getAsString() + "***", false)
-                    .addField("Time", time, true)
-                    .addField("Post ID", postID, true)
-                    .addBlankField(false)
-                    .addField("Yes", this.player.getAsTag(), true)
-                    .addField("Maybe", "None", true)
-                    .addField("No", "None", true);
+            if(new Random().nextFloat() < 0.05F) post.addUser(BozoBot.BOT_JDA.getSelfUser(), "maybe");
 
-            Document postData = new Document();
-
-            postData.append("postID", postID)
-                    .append("poster", event.getUser().getId())
-                    .append("activity", activityOption.getAsString())
-                    .append("time", time)
-                    .append("yes", List.of(this.player.getId()))
-                    .append("maybe", new ArrayList<String>())
-                    .append("no", new ArrayList<String>());
-
-            String baseButtonID = LFG_POST_BUTTON + "-" + postID + "-";
+            String baseButtonID = LFG_POST_BUTTON + "-" + post.getPostID() + "-";
             Button yes = Button.of(ButtonStyle.SUCCESS, baseButtonID + "yes", "Yes");
             Button maybe = Button.of(ButtonStyle.PRIMARY, baseButtonID + "maybe", "Maybe");
             Button no = Button.of(ButtonStyle.DANGER, baseButtonID + "no", "No");
 
-            event.replyEmbeds(embed.build()).addActionRow(yes, maybe, no).queue(ih -> ih.retrieveOriginal().queue(m -> {
-                postData.append("messageID", m.getId());
-                Mongo.LFGPostDB.insertOne(postData);
+            event.replyEmbeds(post.createEmbed().build())
+                    .addActionRow(yes, maybe, no)
+                    .queue(ih -> ih.retrieveOriginal().queue(m -> {
+                        post.setMessage(m);
+                        post.upload();
 
-                m.createThreadChannel("LFG Post " + postID + " Discussion").queue();
-            }));
+                        m.createThreadChannel("LFG Post Discussion (Post ID: " + post.getPostID() + ")")
+                                .queue(thread -> thread.addThreadMember(event.getUser()).queue());
+                    }));
         }
         else if(event.getSubcommandName().equals("edit"))
         {
-            OptionMapping postIDOption = event.getOption("post-id");
+            OptionMapping postIDOption = Objects.requireNonNull(event.getOption("post-id"));
             OptionMapping activityOption = event.getOption("activity");
             OptionMapping timeOption = event.getOption("time");
 
-            if(postIDOption == null)
-                return this.error("Post ID option missing.");
-            else if(activityOption == null && timeOption == null)
-                return this.error("You must specify an option to edit, either the activity name or time.", true);
+            if(activityOption == null && timeOption == null)
+                return this.error("You must specify an option to edit, either the activity name or time.");
 
-            Document data = Mongo.LFGPostDB.find(Filters.eq("postID", postIDOption.getAsString())).first();
-            if(data == null)
-                return this.error("Invalid Post ID", true);
+            LFGPost post = LFGPost.get(postIDOption.getAsString());
 
-            if(!event.getUser().getId().equals(data.getString("poster")))
-                return this.error("Only the creator of the LFG post (<@" + data.getString("poster") + ">) can edit it.", true);
+            if(post == null) return this.error("Invalid Post ID");
+            else if(!event.getUser().getId().equals(post.getPostUserID()))
+                return this.error("Only the creator of the LFG Post (" + post.getPostUserName() + ") can edit it.", true);
 
-            BiConsumer<Message, Pair<String, String>> editer = (message, pair) -> {
-                MessageEmbed original = message.getEmbeds().get(0);
-                List<MessageEmbed.Field> fields = original.getFields();
+            if(timeOption != null && !post.setTime(timeOption.getAsString()))
+                    return this.error("""
+                        Invalid input.
+                        Supported formats are:
+                         - A unix timestamp specifying the exact time for the activity.
+                         - `XdYh`: X days and Y hours from now.
+                         - `Xh`: X hours from now.
+                         - Any text: Custom "time" that will be displayed as-is.
+                        """);
 
-                String activity = pair.getFirst().equals("activity") ? pair.getSecond() : fields.stream().filter(f -> f.getName().equals("Activity")).findFirst().get().getValue();
-
-                String time = pair.getFirst().equals("time") ? this.getUnixTimestamp(pair.getSecond()) : fields.stream().filter(f -> f.getName().equals("Time")).findFirst().get().getValue();
-                if(time == null || time.isEmpty())
-                {
-                    time = fields.stream().filter(f -> f.getName().equals("Time")).findFirst().get().getValue();
-                    BozoBot.BOT_JDA.openPrivateChannelById(event.getUser().getId()).onSuccess(c -> c.sendMessage("Your LFG post was not edited because of an invalid time input. Supported formats are `XdYh` and `Xh`, where X and Y are numbers.").queue());
-                }
-
-                String yes = fields.stream().filter(f -> f.getName().equals("Yes")).findFirst().get().getValue();
-                String maybe = fields.stream().filter(f -> f.getName().equals("Maybe")).findFirst().get().getValue();
-                String no = fields.stream().filter(f -> f.getName().equals("No")).findFirst().get().getValue();
-
-                EmbedBuilder embed = new EmbedBuilder()
-                        .addField("Activity", "" + activity, false)
-                        .addField("Time", "" + time, true)
-                        .addField("Post ID", postIDOption.getAsString(), true)
-                        .addBlankField(false)
-                        .addField("Yes", "" + yes, true)
-                        .addField("Maybe", "" + maybe, true)
-                        .addField("No", "" + no, true);
-
-                message.editMessageEmbeds(embed.build()).queue();
-            };
-
-            String activityName = data.getString("activity");
             if(activityOption != null)
             {
-                String newActivityName = activityOption.getAsString();
-
-                event.getChannel()
-                        .retrieveMessageById(data.getString("messageID"))
-                        .queue(m -> editer.accept(m, new Pair<>("activity", "***" + newActivityName + "***")));
-
-                Mongo.LFGPostDB.updateOne(Filters.eq("postID", postIDOption.getAsString()), Updates.set("activity", newActivityName));
+                if(activityOption.getAsString().isEmpty()) return this.error("Activity name cannot be empty.");
+                else post.setActivity(activityOption.getAsString());
             }
 
-            if(timeOption != null)
-            {
-                String newTime = this.getUnixTimestamp(timeOption.getAsString());
-                if(newTime.isEmpty()) return this.error("Invalid input. Supported formats are `XdYh` and `Xh`, where X and Y are numbers.");
-
-                event.getChannel()
-                        .retrieveMessageById(data.getString("messageID"))
-                        .queue(m -> editer.accept(m, new Pair<>("time", newTime)));
-
-                Mongo.LFGPostDB.updateOne(Filters.eq("postID", postIDOption.getAsString()), Updates.set("time", newTime));
-            }
+            post.update();
 
             event.reply("Your LFG post has been edited. Please check the post to make sure the changes are correct.").setEphemeral(true).queue();
 
-            //TODO: Figure out pinging in threads
-            List<String> pingMembers = new ArrayList<>();
-            pingMembers.addAll(data.getList("yes", String.class));
-            pingMembers.addAll(data.getList("maybe", String.class));
+            Guild guild = Objects.requireNonNull(event.getGuild());
+            TextChannel channel = Objects.requireNonNull(guild.getChannelById(TextChannel.class, post.getChannelID()));
 
-            pingMembers = pingMembers.stream().map(s -> "<@" + s + ">").collect(Collectors.toList());
-            event.getGuild().getChannelById(TextChannel.class, LFG_CHANNEL).sendMessage(String.join(" ", pingMembers) + "\n\nLFG Post (Activity: " + activityName + ") Updated.").queue();
+            channel.retrieveMessageById(post.getMessageID()).queue(m ->
+            {
+                m.editMessageEmbeds(post.createEmbed().build()).queue();
+
+                if(m.getStartedThread() != null)
+                {
+                    List<String> pings = new ArrayList<>();
+                    pings.addAll(post.yes()); pings.addAll(post.maybe()); pings.addAll(post.no());
+                    pings.remove(post.getPostUserID());
+
+                    String pingsMessage = pings.stream().map(id -> "<@" + id + ">").collect(Collectors.joining(" "));
+                    m.getStartedThread().sendMessage("LFG Post Updated!\n" + pingsMessage).queue();
+                }
+            });
         }
 
         this.embed = null;
@@ -239,153 +200,59 @@ public class CommandLFG extends Command
         String[] info = event.getButton().getId().split("-");
 
         String postID = info[2];
-        Document data = Mongo.LFGPostDB.find(Filters.eq("postID", postID)).first();
+        LFGPost post = LFGPost.get(postID);
 
-        if(data == null) return this.error("LFG Post not found. The LFG Post most likely has expired, but, if not, try again in a couple seconds.", true);
+        if(post == null) return this.error("LFG Post not found.", true);
 
         String userID = event.getUser().getId();
-
-        List<String> yes = new ArrayList<>(data.getList("yes", String.class));
-        List<String> maybe = new ArrayList<>(data.getList("maybe", String.class));
-        List<String> no = new ArrayList<>(data.getList("no", String.class));
+        boolean isNewUser = !post.yes().contains(userID) && !post.maybe().contains(userID) && !post.no().contains(userID);
 
         String choice = info[3];
-        if(choice.equals("yes"))
+        switch(choice)
         {
-            Bson removalUpdate = null;
-            if(maybe.contains(userID))
+            case "yes" ->
             {
-                maybe.remove(userID);
-                removalUpdate = Updates.pull("maybe", userID);
-                this.response = "Moved from **Maybe** to **Yes**.";
-            }
-            else if(no.contains(userID))
-            {
-                no.remove(userID);
-                removalUpdate = Updates.pull("no", userID);
-                this.response = "Moved from **No** to **Yes**.";
-            }
-            else if(yes.contains(userID)) return this.error("You're already in the **Yes** list.");
-            else this.response = "Added to **Yes**.";
+                if(post.yes().contains(userID)) return this.error("You're already in the **Yes** list.");
 
-            yes.add(userID);
-            Bson push = Updates.push("yes", userID);
-            Mongo.LFGPostDB.updateOne(Filters.eq("postID", postID), push);
-            if(removalUpdate != null) Mongo.LFGPostDB.updateOne(Filters.eq("postID", postID), removalUpdate);
-        }
-        else if(choice.equals("maybe"))
-        {
-            Bson removalUpdate = null;
-            if(yes.contains(userID))
-            {
-                yes.remove(userID);
-                removalUpdate = Updates.pull("yes", userID);
-                this.response = "Moved from **Yes** to **Maybe**.";
-            }
-            else if(no.contains(userID))
-            {
-                no.remove(userID);
-                removalUpdate = Updates.pull("no", userID);
-                this.response = "Moved from **No** to **Maybe**.";
-            }
-            else if(maybe.contains(userID)) return this.error("You're already in the **Maybe** list.");
-            else this.response = "Added to **Maybe**.";
+                post.addUser(event.getUser(), "yes");
+                post.update();
 
-            maybe.add(userID);
-            Bson push = Updates.push("maybe", userID);
-            Mongo.LFGPostDB.updateOne(Filters.eq("postID", postID), push);
-            if(removalUpdate != null) Mongo.LFGPostDB.updateOne(Filters.eq("postID", postID), removalUpdate);
-        }
-        else if(choice.equals("no"))
-        {
-            Bson removalUpdate = null;
-            if(yes.contains(userID))
-            {
-                yes.remove(userID);
-                removalUpdate = Updates.pull("yes", userID);
-                this.response = "Moved from **Yes** to **No**.";
+                this.response = "Added to **Yes**.";
             }
-            else if(maybe.contains(userID))
+            case "maybe" ->
             {
-                maybe.remove(userID);
-                removalUpdate = Updates.pull("maybe", userID);
-                this.response = "Moved from **Maybe** to **No**.";
-            }
-            else if(no.contains(userID)) return this.error("You're already in the **No** list.");
-            else this.response = "Added to **No**.";
+                if(post.maybe().contains(userID)) return this.error("You're already in the **Maybe** list.");
 
-            no.add(userID);
-            Bson push = Updates.push("no", userID);
-            Mongo.LFGPostDB.updateOne(Filters.eq("postID", postID), push);
-            if(removalUpdate != null) Mongo.LFGPostDB.updateOne(Filters.eq("postID", postID), removalUpdate);
+                post.addUser(event.getUser(), "maybe");
+                post.update();
+
+                this.response = "Added to **Maybe**.";
+            }
+            case "no" ->
+            {
+                if(post.no().contains(userID)) return this.error("You're already in the **No** list.");
+
+                post.addUser(event.getUser(), "no");
+                post.update();
+
+                this.response = "Added to **No**.";
+            }
+            default -> //Shouldn't be possible to reach
+            {
+                return this.error("Invalid choice.");
+            }
         }
 
-        event.getGuild().getChannelById(TextChannel.class, LFG_CHANNEL).retrieveMessageById(data.getString("messageID")).queue(m -> {
-            MessageEmbed original = m.getEmbeds().get(0);
-            List<MessageEmbed.Field> fields = original.getFields();
+        Guild guild = Objects.requireNonNull(event.getGuild());
+        TextChannel channel = Objects.requireNonNull(guild.getChannelById(TextChannel.class, post.getChannelID()));
 
-            String activity = fields.stream().filter(f -> f.getName().equals("Activity")).findFirst().get().getValue();
-            String time = fields.stream().filter(f -> f.getName().equals("Time")).findFirst().get().getValue();
+        channel.retrieveMessageById(post.getMessageID()).queue(m ->
+        {
+            m.editMessageEmbeds(post.createEmbed().build()).queue();
 
-            List<String> allMembers = new ArrayList<>();
-            allMembers.addAll(yes);
-            allMembers.addAll(maybe);
-            allMembers.addAll(no);
-
-            event.getGuild().retrieveMembersByIds(allMembers.stream().map(Long::parseLong).distinct().toList()).onSuccess(memberList -> {
-                Function<List<String>, String> converter = list -> list.stream()
-                        .map(s -> memberList.stream().filter(mem -> mem.getUser().getId().equals(s)).findFirst().get())
-                        .map(mem -> mem.getUser().getName() + "#" + mem.getUser().getDiscriminator())
-                        .collect(Collectors.joining("\n"));
-
-                EmbedBuilder embed = new EmbedBuilder()
-                        .addField("Activity", "" + activity, false)
-                        .addField("Time", "" + time, true)
-                        .addField("Post ID", postID, true)
-                        .addBlankField(false)
-                        .addField("Yes", converter.apply(yes), true)
-                        .addField("Maybe", converter.apply(maybe), true)
-                        .addField("No", converter.apply(no), true);
-
-                m.editMessageEmbeds(embed.build()).queue();
-            });
+            if(isNewUser && m.getStartedThread() != null) m.getStartedThread().addThreadMember(event.getUser()).queue();
         });
 
         return true;
-    }
-
-    private String getUnixTimestamp(String input)
-    {
-        //Best guess for it being a timestamp already
-        if(input.startsWith("<t:") && input.lastIndexOf(":") != input.indexOf(":")) return input;
-
-        //<x>d<y>h
-        else if(input.matches("\\d*d\\d*h"))
-        {
-            int days = Integer.parseInt(input.substring(0, input.indexOf("d")));
-            int hours = Integer.parseInt(input.substring(input.indexOf("d") + 1, input.indexOf("h")));
-
-            Instant time = Instant.now().plus(days, ChronoUnit.DAYS).plus(hours, ChronoUnit.HOURS);
-
-            long epoch = time.getEpochSecond();
-
-            epoch = (epoch / 900) * 900; //15 minutes
-
-            return "<t:" + epoch + ":F>";
-        }
-        //<x>h
-        else if(input.matches("\\d*h"))
-        {
-            int hours = Integer.parseInt(input.substring(0, input.indexOf("h")));
-
-            Instant time = Instant.now().plus(hours, ChronoUnit.HOURS);
-
-            long epoch = time.getEpochSecond();
-
-            epoch = (epoch / 900) * 900; //15 minutes
-
-            return "<t:" + epoch + ":F>";
-        }
-        else return input;
     }
 }

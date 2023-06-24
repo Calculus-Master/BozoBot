@@ -27,6 +27,7 @@ public class BozoBot
     public static void main(String[] args) throws InterruptedException
     {
         BozoLogger.suppressMongo();
+        BotConfig.init();
 
         BozoLogger.init("Questions Attachments", CommandQuestions::readAttachmentsCached);
 
