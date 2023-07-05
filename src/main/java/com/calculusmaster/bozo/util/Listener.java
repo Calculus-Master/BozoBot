@@ -118,7 +118,7 @@ public class Listener extends ListenerAdapter
 
         boolean isBozocord = guildID.equals("983450314885713940");
 
-        if(!COUNTER_DATA_MAP.containsKey(guildID)) COUNTER_DATA_MAP.put(guildID, new CounterData());
+        if(!COUNTER_DATA_MAP.containsKey(guildID)) COUNTER_DATA_MAP.put(guildID, new CounterData(isBozocord ? 5 : 15, isBozocord ? 5 : 12));
         CounterData data = COUNTER_DATA_MAP.get(guildID);
         data.update();
 
@@ -158,9 +158,9 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage(event.getAuthor().getAsMention() + " they're watching you...").queue();
 
         //General Responses
-        if(data.messageCounterResponses >= 5 && !event.getAuthor().isBot() && r.nextFloat() < 0.05F)
+        if(data.messageCounterResponses >= data.responseInterval && !event.getAuthor().isBot() && r.nextFloat() < 0.05F)
         {
-            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye", "always", "definitely", "totally", "sure", "NOPE", "...", "never", "oh", event.getAuthor().getAsMention());
+            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye", "always", "definitely", "totally", "sure", "NOPE", "...", "never", "oh", "how", "when", "why", event.getAuthor().getAsMention());
 
             if(UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage(UNIQUE_RESPONSES.get(authorID)).queue();
@@ -174,7 +174,7 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage("best bot").queue();
 
         //General Reactions
-        if(data.messageCounterReactions >= 5 && r.nextFloat() < 0.05F)
+        if(data.messageCounterReactions >= data.reactionInterval && r.nextFloat() < 0.05F)
         {
             String emoji = BotConfig.REACTIONS_POOL.get(r.nextInt(BotConfig.REACTIONS_POOL.size()));
 
@@ -204,7 +204,15 @@ public class Listener extends ListenerAdapter
     private static class CounterData
     {
         private int messageCounterReactions = 0;
+        private final int reactionInterval;
         private int messageCounterResponses = 0;
+        private final int responseInterval;
+
+        CounterData(int reactionInterval, int responseInterval)
+        {
+            this.reactionInterval = reactionInterval;
+            this.responseInterval = responseInterval;
+        }
 
         public void update()
         {

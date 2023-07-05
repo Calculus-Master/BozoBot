@@ -16,7 +16,7 @@ public class BotConfig
     {
         Document config = Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "config")).first());
 
-        REACTIONS_POOL.addAll(config.getList("reactions_pool", String.class));
-        VALID_LFG_CHANNELS.addAll(config.getList("lfg_channels", String.class));
+        REACTIONS_POOL = new ArrayList<>(config.getList("reactions_pool", String.class));
+        VALID_LFG_CHANNELS = new ArrayList<>(config.getList("lfg_channels", String.class));
     }
 }
