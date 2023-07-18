@@ -90,6 +90,8 @@ public class CommandLFG extends Command
     @Override
     protected boolean slashCommandLogic(SlashCommandInteractionEvent event)
     {
+        if(event.getGuild().equals("1000959891604779068")) return this.error("This command is disabled on this server.");
+
         if(event.getSubcommandName().equals("create"))
         {
             OptionMapping activityOption = event.getOption("activity");

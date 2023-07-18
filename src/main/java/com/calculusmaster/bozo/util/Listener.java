@@ -2,6 +2,7 @@ package com.calculusmaster.bozo.util;
 
 import com.calculusmaster.bozo.commands.*;
 import com.calculusmaster.bozo.commands.core.CommandData;
+import kotlin.Pair;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
@@ -97,6 +98,14 @@ public class Listener extends ListenerAdapter
     private static final Map<String, CounterData> COUNTER_DATA_MAP = new HashMap<>();
     private static final Map<String, String> UNIQUE_RESPONSES = new HashMap<>();
 
+    private static final Map<String, Pair<Integer, Integer>> INTERVALS = new HashMap<>();
+    static
+    {
+        INTERVALS.put("983450314885713940", new Pair<>(5, 5)); //Bozocord
+        INTERVALS.put("878207461117550642", new Pair<>(15, 12)); //Onyxcord
+        INTERVALS.put("1000959891604779068", new Pair<>(7, 7)); //Avluscord
+    }
+
     private static void registerResponses()
     {
         UNIQUE_RESPONSES.put("490401640843706368", "grape");
@@ -118,7 +127,12 @@ public class Listener extends ListenerAdapter
 
         boolean isBozocord = guildID.equals("983450314885713940");
 
-        if(!COUNTER_DATA_MAP.containsKey(guildID)) COUNTER_DATA_MAP.put(guildID, new CounterData(isBozocord ? 5 : 15, isBozocord ? 5 : 12));
+        if(!COUNTER_DATA_MAP.containsKey(guildID))
+        {
+            Pair<Integer, Integer> values = INTERVALS.getOrDefault(guildID, new Pair<>(5, 5));
+            COUNTER_DATA_MAP.put(guildID, new CounterData(values.getFirst(), values.getSecond()));
+        }
+
         CounterData data = COUNTER_DATA_MAP.get(guildID);
         data.update();
 
