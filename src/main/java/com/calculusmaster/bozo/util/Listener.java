@@ -104,6 +104,7 @@ public class Listener extends ListenerAdapter
         INTERVALS.put("983450314885713940", new Pair<>(5, 5)); //Bozocord
         INTERVALS.put("878207461117550642", new Pair<>(15, 12)); //Onyxcord
         INTERVALS.put("1000959891604779068", new Pair<>(7, 7)); //Avluscord
+        INTERVALS.put("943354742384521267", new Pair<>(6, 6)); //Wiacord
     }
 
     private static void registerResponses()
@@ -150,6 +151,12 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage("i'm happy for you tho").queue();
             event.getChannel().sendMessage("or sorry that happened").queue();
         }
+        else if(content.length() <= 100 && r.nextFloat() < 0.05F)
+        {
+            StringBuilder modified = new StringBuilder();
+            for(char c : event.getMessage().getContentRaw().toCharArray()) modified.append(r.nextBoolean() ? String.valueOf(c).toUpperCase() : String.valueOf(c).toLowerCase());
+            event.getChannel().sendMessage(modified.toString()).queue();
+        }
 
         if(r.nextFloat() < 0.2F && content.contains("rose"))
             event.getChannel().sendMessage("\"Strong hands he held a " + (r.nextFloat() < 0.2F ? "cock" : "rose") +  ",aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
@@ -174,7 +181,7 @@ public class Listener extends ListenerAdapter
         //General Responses
         if(data.messageCounterResponses >= data.responseInterval && !event.getAuthor().isBot() && r.nextFloat() < 0.05F)
         {
-            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye", "always", "definitely", "totally", "sure", "NOPE", "...", "never", "oh", "how", "when", "why", event.getAuthor().getAsMention());
+            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye", "always", "definitely", "totally", "sure", "NOPE", "...", "never", "oh", "how", "when", "why", "?", "!", "!!!", "???", ".", ":(", event.getAuthor().getAsMention());
 
             if(UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage(UNIQUE_RESPONSES.get(authorID)).queue();
