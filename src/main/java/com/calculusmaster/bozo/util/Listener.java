@@ -42,6 +42,7 @@ public class Listener extends ListenerAdapter
         CommandSuggestBozo.init();
         CommandLFG.init();
         CommandRemoveNameChanger.init();
+        CommandLeaderboard.init();
 
         Listener.registerResponses();
     }
@@ -116,6 +117,7 @@ public class Listener extends ListenerAdapter
         UNIQUE_RESPONSES.put("752237938779226173", "chainsword>chainsawman");
         UNIQUE_RESPONSES.put("274068634798915584", "misinfo!!!!!");
         UNIQUE_RESPONSES.put("445222471332003840", "demo best perk");
+        UNIQUE_RESPONSES.put("557696215903633439", "## no anime");
     }
 
     @Override
@@ -137,6 +139,9 @@ public class Listener extends ListenerAdapter
         CounterData data = COUNTER_DATA_MAP.get(guildID);
         data.update();
 
+        if(MessageLeaderboardHandler.hasServer(guildID))
+            MessageLeaderboardHandler.addUserMessage(guildID, authorID, event.getAuthor().getName());
+
         //Pin
         if(r.nextInt(8192) == 0)
         {
@@ -151,7 +156,7 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage("i'm happy for you tho").queue();
             event.getChannel().sendMessage("or sorry that happened").queue();
         }
-        else if(content.length() <= 100 && r.nextFloat() < 0.005F)
+        else if(content.length() <= 100 && r.nextFloat() < 0.01F && event.getGuild().retrieveMember(event.getAuthor()).complete().getRoles().stream().anyMatch(role -> role.getId().equals("1070462116655534101")))
         {
             StringBuilder modified = new StringBuilder();
             for(char c : event.getMessage().getContentRaw().toCharArray()) modified.append(r.nextBoolean() ? String.valueOf(c).toUpperCase() : String.valueOf(c).toLowerCase());
@@ -181,7 +186,7 @@ public class Listener extends ListenerAdapter
         //General Responses
         if(data.messageCounterResponses >= data.responseInterval && !event.getAuthor().isBot() && r.nextFloat() < 0.05F)
         {
-            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye", "always", "definitely", "totally", "sure", "NOPE", "...", "never", "oh", "how", "when", "why", "?", "!", "!!!", "???", ".", ":(", event.getAuthor().getAsMention());
+            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye", "always", "definitely", "totally", "sure", "NOPE", "...", "never", "oh", "how", "when", "why", "?", "!", "!!!", "???", ".", ":(", "wtf", "tf", "wdym", "poggies", "weird", "leave", "W", "OMG", "really", "fr", "ofc", "duh", "bro", "whatever", event.getAuthor().getAsMention());
 
             if(UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
                 event.getChannel().sendMessage(UNIQUE_RESPONSES.get(authorID)).queue();

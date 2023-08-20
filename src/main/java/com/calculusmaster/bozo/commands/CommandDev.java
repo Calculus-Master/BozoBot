@@ -5,6 +5,7 @@ import com.calculusmaster.bozo.commands.core.CommandData;
 import com.calculusmaster.bozo.events.GhostPingEvent;
 import com.calculusmaster.bozo.events.NameChangeRoleEvent;
 import com.calculusmaster.bozo.util.BotConfig;
+import com.calculusmaster.bozo.util.MessageLeaderboardHandler;
 import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
@@ -180,6 +181,14 @@ public class CommandDev extends Command
         {
             String reactionId = command.getAsString().split("-")[1];
             Mongo.Misc.updateOne(Filters.eq("type", "config"), Updates.push("reactions_pool", reactionId));
+        }
+        else if(command.getAsString().equals("addmessagecounts"))
+        {
+            long start = System.currentTimeMillis();
+            event.getChannel().getIterableHistory().forEachAsync(m -> {
+                MessageLeaderboardHandler.addUserMessage(m.getGuild().getId(), m.getAuthor().getId(), m.getAuthor().getName());
+                return true;
+            }, t -> event.getChannel().sendMessage("Error: " + t.getMessage()).queue()).thenRun(() -> event.getChannel().sendMessage("Messages counted (Time: %s ms)! <@309135641453527040>".formatted(System.currentTimeMillis() - start)).queue());
         }
         else return this.error("Invalid command!");
 

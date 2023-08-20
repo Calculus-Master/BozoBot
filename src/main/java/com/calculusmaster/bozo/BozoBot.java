@@ -30,6 +30,7 @@ public class BozoBot
         BotConfig.init();
 
         BozoLogger.init("Questions Attachments", CommandQuestions::readAttachmentsCached);
+        BozoLogger.init("Message Leaderboards", MessageLeaderboardHandler::init);
 
         JDABuilder bot = JDABuilder
                 .createDefault(HiddenConfig.TOKEN)
