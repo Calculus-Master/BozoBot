@@ -51,13 +51,13 @@ public class CommandLFG extends Command
                                 new SubcommandData("create", "Create a new LFG post.")
                                         .addOption(OptionType.STRING, "activity", "The activity you're setting a post for.", true)
                                         .addOption(OptionType.STRING, "time", "The time you want to start at. Use hammertime.cyou and copy-paste any of the formats into here.", true)
-                                        .addOption(OptionType.NUMBER, "players", "The number of players you need. -1 to ignore this option.", true),
+                                        .addOption(OptionType.INTEGER, "players", "The number of players you need. -1 to ignore this option.", true),
 
                                 new SubcommandData("edit", "Edit an existing LFG post.")
                                         .addOption(OptionType.STRING, "post-id", "The post ID of the LFG post you're editing.", true)
                                         .addOption(OptionType.STRING, "activity", "Edit the activity name of the LFG post.", false)
                                         .addOption(OptionType.STRING, "time", "Edit the time of the LFG post.", false)
-                                        .addOption(OptionType.NUMBER, "players", "Edit the number of players needed. -1 to ignore.", false)
+                                        .addOption(OptionType.INTEGER, "players", "Edit the number of players needed. -1 to ignore.", false)
                         )
                 )
                 .setNotOnlyBozocord()
