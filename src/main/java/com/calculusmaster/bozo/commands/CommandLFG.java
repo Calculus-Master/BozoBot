@@ -50,12 +50,14 @@ public class CommandLFG extends Command
                         .addSubcommands(
                                 new SubcommandData("create", "Create a new LFG post.")
                                         .addOption(OptionType.STRING, "activity", "The activity you're setting a post for.", true)
-                                        .addOption(OptionType.STRING, "time", "The time you want to start at. Use hammertime.cyou and copy-paste any of the formats into here.", true),
+                                        .addOption(OptionType.STRING, "time", "The time you want to start at. Use hammertime.cyou and copy-paste any of the formats into here.", true)
+                                        .addOption(OptionType.NUMBER, "players", "The number of players you need. -1 to ignore this option.", true),
 
                                 new SubcommandData("edit", "Edit an existing LFG post.")
                                         .addOption(OptionType.STRING, "post-id", "The post ID of the LFG post you're editing.", true)
                                         .addOption(OptionType.STRING, "activity", "Edit the activity name of the LFG post.", false)
                                         .addOption(OptionType.STRING, "time", "Edit the time of the LFG post.", false)
+                                        .addOption(OptionType.NUMBER, "players", "Edit the number of players needed. -1 to ignore.", false)
                         )
                 )
                 .setNotOnlyBozocord()
@@ -96,8 +98,9 @@ public class CommandLFG extends Command
         {
             OptionMapping activityOption = event.getOption("activity");
             OptionMapping timeOption = event.getOption("time");
+            OptionMapping playersOption = event.getOption("players");
 
-            if(activityOption == null || timeOption == null) return this.error("Either activity or time option is missing.", true);
+            if(activityOption == null || timeOption == null || playersOption == null) return this.error("A required option is missing.", true);
             else if(!BotConfig.VALID_LFG_CHANNELS.contains(event.getChannel().getId()))
                 return this.error("This command can only be used in one of these channels: " + BotConfig.VALID_LFG_CHANNELS.stream().map(s -> "<#" + s + ">").collect(Collectors.joining(" ")) + ".", true);
 
@@ -115,6 +118,7 @@ public class CommandLFG extends Command
 
             post.setActivity(activityOption.getAsString());
             post.setPostUser(event.getUser());
+            post.setPlayers(Math.max(0, playersOption.getAsInt()));
 
             if(new Random().nextFloat() < 0.05F) post.addUser(BozoBot.BOT_JDA.getSelfUser(), "maybe");
 
@@ -138,6 +142,7 @@ public class CommandLFG extends Command
             OptionMapping postIDOption = Objects.requireNonNull(event.getOption("post-id"));
             OptionMapping activityOption = event.getOption("activity");
             OptionMapping timeOption = event.getOption("time");
+            OptionMapping playersOption = event.getOption("players");
 
             if(activityOption == null && timeOption == null)
                 return this.error("You must specify an option to edit, either the activity name or time.");
@@ -163,6 +168,9 @@ public class CommandLFG extends Command
                 if(activityOption.getAsString().isEmpty()) return this.error("Activity name cannot be empty.");
                 else post.setActivity(activityOption.getAsString());
             }
+
+            if(playersOption != null)
+                post.setPlayers(Math.max(0, playersOption.getAsInt()));
 
             post.update();
 

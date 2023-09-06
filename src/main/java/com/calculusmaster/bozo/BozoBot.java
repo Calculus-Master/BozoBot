@@ -63,6 +63,6 @@ public class BozoBot
         //Events
         NameChangeRoleEvent.startNameChangeCycler();
         GhostPingEvent.startGhostPingCycler();
-        CommandLFG.cleanUpPosts();
+        //CommandLFG.cleanUpPosts(); //TODO: Disabled temporarily
     }
 }

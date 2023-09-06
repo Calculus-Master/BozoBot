@@ -26,6 +26,7 @@ public class LFGPost
     private String postUserID;
     private String activity;
     private String time;
+    private int players;
 
     //Users
     private List<String> yes;
@@ -41,6 +42,7 @@ public class LFGPost
         this.postUserID = "";
         this.activity = "";
         this.time = "";
+        this.players = 0;
 
         this.yes = new ArrayList<>();
         this.maybe = new ArrayList<>();
@@ -66,6 +68,7 @@ public class LFGPost
         this.postUserID = data.getString("postUserID");
         this.activity = data.getString("activity");
         this.time = data.getString("time");
+        this.players = data.getInteger("players", 0);
 
         Document userData = data.get("users", Document.class);
         this.yes = userData.getList("yes", String.class);
@@ -86,7 +89,7 @@ public class LFGPost
     public EmbedBuilder createEmbed()
     {
         return new EmbedBuilder()
-                .setTitle(this.usernames.get(this.postUserID) + "'s LFG Post")
+                .setTitle(this.usernames.get(this.postUserID) + "'s LFG Post%s".formatted(this.players > 0 && this.players == this.yes.size() ? " (Full)" : ""))
 
                 .addField("Activity", "***" + this.activity + "***", false)
 
@@ -94,7 +97,7 @@ public class LFGPost
                 .addField("Post ID", this.postID, true)
                 .addBlankField(true)
 
-                .addField("Yes", this.yes.isEmpty() ? "None" : this.yes.stream().map(userID -> this.usernames.get(userID)).collect(Collectors.joining("\n")), true)
+                .addField("Yes%s".formatted(this.players > 0 ? " (" + this.yes.size() + " / " + this.players + ")" : ""), this.yes.isEmpty() ? "None" : this.yes.stream().map(userID -> this.usernames.get(userID)).collect(Collectors.joining("\n")), true)
                 .addField("Maybe", this.maybe.isEmpty() ? "None" : this.maybe.stream().map(userID -> this.usernames.get(userID)).collect(Collectors.joining("\n")), true)
                 .addField("No", this.no.isEmpty() ? "None" : this.no.stream().map(userID -> this.usernames.get(userID)).collect(Collectors.joining("\n")), true)
         ;
@@ -112,6 +115,7 @@ public class LFGPost
                 .append("postUserID", this.postUserID)
                 .append("activity", this.activity)
                 .append("time", this.time)
+                .append("players", this.players)
                 .append("users", new Document()
                         .append("yes", this.yes)
                         .append("maybe", this.maybe)
@@ -216,6 +220,11 @@ public class LFGPost
         this.serverID = message.getGuild().getId();
         this.channelID = message.getChannel().getId();
         this.messageID = message.getId();
+    }
+
+    public void setPlayers(int players)
+    {
+        this.players = players;
     }
 
     //Getters
