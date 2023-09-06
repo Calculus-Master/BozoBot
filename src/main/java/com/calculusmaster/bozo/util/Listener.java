@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bson.Document;
 
@@ -43,8 +44,6 @@ public class Listener extends ListenerAdapter
         CommandLFG.init();
         CommandRemoveNameChanger.init();
         CommandLeaderboard.init();
-
-        Listener.registerResponses();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
@@ -97,7 +96,6 @@ public class Listener extends ListenerAdapter
     }
 
     private static final Map<String, CounterData> COUNTER_DATA_MAP = new HashMap<>();
-    private static final Map<String, String> UNIQUE_RESPONSES = new HashMap<>();
 
     private static final Map<String, Pair<Integer, Integer>> INTERVALS = new HashMap<>();
     static
@@ -108,16 +106,17 @@ public class Listener extends ListenerAdapter
         INTERVALS.put("943354742384521267", new Pair<>(6, 6)); //Wiacord
     }
 
-    private static void registerResponses()
+    @Override
+    public void onMessageReactionRemove(MessageReactionRemoveEvent event)
     {
-        UNIQUE_RESPONSES.put("490401640843706368", "grape");
-        UNIQUE_RESPONSES.put("776195690149576704", "ok pvp bot");
-        UNIQUE_RESPONSES.put("429601532363931659", "it really is that shrimple");
-        UNIQUE_RESPONSES.put("160843328898727936", "ikr, hunters are so mid");
-        UNIQUE_RESPONSES.put("752237938779226173", "chainsword>chainsawman");
-        UNIQUE_RESPONSES.put("274068634798915584", "misinfo!!!!!");
-        UNIQUE_RESPONSES.put("445222471332003840", "demo best perk");
-        UNIQUE_RESPONSES.put("557696215903633439", "## no anime");
+        if(event.isFromGuild() && event.getGuild().getId().equals("983450314885713940"))
+            event.retrieveUser().queue(u ->
+                    event.getGuild().retrieveMemberById("309135641453527040").queue(m ->
+                            m.getUser().openPrivateChannel().queue(c ->
+                                    c.sendMessage("Reaction {%s} removed by {%s} in the channel {%s}.".formatted(event.getReaction().getEmoji().getName(), u.getName(), event.getChannel().getAsMention())).queue()
+                            )
+                    )
+            );
     }
 
     @Override
@@ -156,7 +155,7 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage("i'm happy for you tho").queue();
             event.getChannel().sendMessage("or sorry that happened").queue();
         }
-        else if(content.length() <= 100 && r.nextFloat() < 0.01F && event.getGuild().retrieveMember(event.getAuthor()).complete().getRoles().stream().anyMatch(role -> role.getId().equals("1070462116655534101")))
+        else if(content.length() <= 100 && r.nextFloat() < 0.01F && event.getGuild().retrieveMember(event.getAuthor()).complete().getRoles().stream().anyMatch(role -> role.getId().equals("a")))
         {
             StringBuilder modified = new StringBuilder();
             for(char c : event.getMessage().getContentRaw().toCharArray()) modified.append(r.nextBoolean() ? String.valueOf(c).toUpperCase() : String.valueOf(c).toLowerCase());
@@ -186,12 +185,15 @@ public class Listener extends ListenerAdapter
         //General Responses
         if(data.messageCounterResponses >= data.responseInterval && !event.getAuthor().isBot() && r.nextFloat() < 0.05F)
         {
-            List<String> oneWordResponses = List.of("yeah", "no", "L", "lol", "true", "cringe", "based", "smh", "wow", "ok", "bruh", "bozo", ":)", "wrong", "whar", "real", "simp", "mid", "hi", "perfect", "interesting", "lmao", "heh", "ikr", "bye", "always", "definitely", "totally", "sure", "NOPE", "...", "never", "oh", "how", "when", "why", "?", "!", "!!!", "???", ".", ":(", "wtf", "tf", "wdym", "poggies", "weird", "leave", "W", "OMG", "really", "fr", "ofc", "duh", "bro", "whatever", event.getAuthor().getAsMention());
+            List<String> oneWordResponses = new ArrayList<>(BotConfig.ONE_WORD_RESPONSES);
+            oneWordResponses.add(event.getAuthor().getAsMention());
 
-            if(UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage(UNIQUE_RESPONSES.get(authorID)).queue();
+            if(BotConfig.UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
+                event.getChannel().sendMessage(BotConfig.UNIQUE_RESPONSES.get(authorID)).queue();
             else if(isBozocord && Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
-                event.getChannel().sendMessage("join clan bozo").queue();
+                event.getChannel().sendMessage("<#1020858333521002556>").queue();
+            else if(r.nextFloat() < 0.05F && r.nextFloat() < 0.35F && List.of("998041223489138738", "983450314885713943").contains(event.getChannel().getId()))
+                event.getChannel().sendMessage(BotConfig.D2_RESPONSES.get(r.nextInt(BotConfig.D2_RESPONSES.size()))).queue();
             else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
 
             data.messageCounterResponses = 0;

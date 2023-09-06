@@ -53,7 +53,7 @@ public class GhostPingEvent
         Role basicBozoRole = bozoServer.getRoleById("983456276803624961");
         TextChannel ghostPingChannel = Objects.requireNonNull(bozoServer.getTextChannelById("1089732136359186432"));
 
-        List<String> inactiveBozos = List.of("282742780797779968", "277272207535767554", "149137630855036928", "339137070759149570");
+        List<String> inactiveBozos = Mongo.Misc.find(Filters.eq("type", "idiot_list_immune")).first().getList("list", String.class);
 
         Random r = new Random();
 
