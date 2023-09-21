@@ -4,6 +4,8 @@ import com.calculusmaster.bozo.commands.*;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import kotlin.Pair;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -11,16 +13,19 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bson.Document;
 
 import java.util.*;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.calculusmaster.bozo.BozoBot.COMMANDS;
+import static com.calculusmaster.bozo.util.BotConfig.BANNED_CHANNELS;
 
 public class Listener extends ListenerAdapter
 {
@@ -44,6 +49,7 @@ public class Listener extends ListenerAdapter
         CommandLFG.init();
         CommandRemoveNameChanger.init();
         CommandLeaderboard.init();
+        CommandPoll.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
@@ -109,7 +115,9 @@ public class Listener extends ListenerAdapter
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event)
     {
-        if(event.isFromGuild() && event.getGuild().getId().equals("983450314885713940"))
+        Poll poll = Poll.getPoll(event.getMessageId());
+
+        if(event.isFromGuild() && poll == null && event.getGuild().getId().equals("983450314885713940"))
             event.retrieveUser().queue(u ->
                     event.getGuild().retrieveMemberById("309135641453527040").queue(m ->
                             m.getUser().openPrivateChannel().queue(c ->
@@ -117,11 +125,50 @@ public class Listener extends ListenerAdapter
                             )
                     )
             );
+
+        if(!event.getUserId().equals("1069804190458708049") && poll != null && !poll.isAnonymous())
+            poll.removeVote(event.getUserId());
+    }
+
+    @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event)
+    {
+        boolean isBozocord = event.getGuild().getId().equals("983450314885713940");
+        if(isBozocord && !event.getReaction().isSelf() && event.getReaction().getEmoji().getAsReactionCode().equals(BotConfig.STARBOARD_REACTION))
+        {
+            if(event.getReaction().getEmoji().getAsReactionCode().equals(BotConfig.STARBOARD_REACTION))
+                Executors.newSingleThreadScheduledExecutor().schedule(() -> event.retrieveMessage().queue(this::checkAndUpdateStarboard), 5, TimeUnit.SECONDS);
+        }
+
+        Poll poll = Poll.getPoll(event.getMessageId());
+        if(!event.getUserId().equals("1069804190458708049") && poll != null)
+        {
+            poll.addVote(event.getUserId(), event.getReaction().getEmoji().getAsReactionCode());
+            if(poll.isAnonymous()) event.getReaction().removeReaction(event.retrieveUser().complete()).queue();
+        }
+    }
+
+    private void checkAndUpdateStarboard(Message m)
+    {
+        MessageReaction reaction = Objects.requireNonNull(m.getReaction(Emoji.fromFormatted(BotConfig.STARBOARD_REACTION)));
+
+        if(reaction.getCount() < BotConfig.STARBOARD_MIN_REACTIONS) return;
+
+        StarboardPost post = StarboardPost.get(m.getId());
+        if(post == null)
+        {
+            StarboardPost newPost = new StarboardPost(m, reaction);
+            newPost.createPost();
+        }
+        else post.updateReactions(reaction.getCount());
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event)
     {
+        if(!event.isFromGuild()) return;
+        else if(Poll.getPoll(event.getMessageId()) != null) return;
+
         Random r = new Random();
         String guildID = event.getGuild().getId();
         String authorID = event.getAuthor().getId();
@@ -140,6 +187,8 @@ public class Listener extends ListenerAdapter
 
         if(MessageLeaderboardHandler.hasServer(guildID))
             MessageLeaderboardHandler.addUserMessage(guildID, authorID, event.getAuthor().getName());
+
+        if(BANNED_CHANNELS.contains(event.getChannel().getId())) return;
 
         //Pin
         if(r.nextInt(8192) == 0)

@@ -24,6 +24,8 @@ public class Mongo
     public static final MongoCollection<Document> UserMomentsDB = BozoBotDB.getCollection("UserMoments");
     public static final MongoCollection<Document> Misc = BozoBotDB.getCollection("Misc");
     public static final MongoCollection<Document> LFGPostDB = BozoBotDB.getCollection("LFGPosts");
+    public static final MongoCollection<Document> StarboardPostDB = BozoBotDB.getCollection("StarboardPosts");
+    public static final MongoCollection<Document> PollDB = BozoBotDB.getCollection("Polls");
 
     public static void main(String[] args)
     {

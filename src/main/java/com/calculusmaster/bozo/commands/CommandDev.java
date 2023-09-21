@@ -7,10 +7,13 @@ import com.calculusmaster.bozo.events.NameChangeRoleEvent;
 import com.calculusmaster.bozo.util.BotConfig;
 import com.calculusmaster.bozo.util.MessageLeaderboardHandler;
 import com.calculusmaster.bozo.util.Mongo;
+import com.calculusmaster.bozo.util.StarboardPost;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -19,6 +22,7 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class CommandDev extends Command
@@ -176,6 +180,8 @@ public class CommandDev extends Command
         else if(command.getAsString().equals("updateconfig"))
         {
             BotConfig.init();
+
+            event.getChannel().sendMessage("Config Updated!\n" + Mongo.Misc.find(Filters.eq("type", "config")).first()).queue();
         }
         else if(command.getAsString().startsWith("addreaction"))
         {
@@ -189,6 +195,21 @@ public class CommandDev extends Command
                 MessageLeaderboardHandler.addUserMessage(m.getGuild().getId(), m.getAuthor().getId(), m.getAuthor().getName());
                 return true;
             }, t -> event.getChannel().sendMessage("Error: " + t.getMessage()).queue()).thenRun(() -> event.getChannel().sendMessage("Messages counted (Time: %s ms)! <@309135641453527040>".formatted(System.currentTimeMillis() - start)).queue());
+        }
+        else if(command.getAsString().startsWith("addstarboardpost"))
+        {
+            String messageID = command.getAsString().split("-")[1];
+            event.getChannel().retrieveMessageById(messageID).queue(m ->
+            {
+                MessageReaction reaction = m.getReaction(Emoji.fromFormatted(BotConfig.STARBOARD_REACTION));
+                if(reaction != null)
+                {
+                    StarboardPost post = new StarboardPost(m, reaction);
+                    post.createPost();
+                    event.getChannel().sendMessage(event.getUser().getAsMention() + " - Starboard Post added.").queue();
+                }
+                else event.getChannel().sendMessage(event.getUser().getAsMention() + " - Failed to add Starboard post.").queue();
+            });
         }
         else return this.error("Invalid command!");
 
