@@ -93,7 +93,7 @@ public class StarboardPost
                        Mongo.StarboardPostDB.insertOne(this.serialize());
                     });
 
-                    if(!m.getAttachments().isEmpty()) starboardChannel.sendMessage("[Attachment](%s)".formatted(m.getAttachments().get(0).getProxyUrl())).queue();
+                    if(!m.getAttachments().isEmpty()) m.getAttachments().forEach(a -> starboardChannel.sendMessage("[Attachment](%s)".formatted(a.getProxyUrl())).queue());
                 });
     }
 
