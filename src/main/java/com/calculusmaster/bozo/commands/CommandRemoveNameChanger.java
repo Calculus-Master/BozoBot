@@ -9,7 +9,8 @@ import com.mongodb.client.model.Updates;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-import static com.calculusmaster.bozo.events.NameChangeRoleEvent.getTime;
+import java.time.Instant;
+import java.util.Objects;
 
 public class CommandRemoveNameChanger extends Command
 {
@@ -32,7 +33,8 @@ public class CommandRemoveNameChanger extends Command
 
         NameChangeRoleEvent.cycleNameChangeRole();
 
-        Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", getTime()));
+        int interval = Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "time_data")).first()).getInteger("name_changer.interval");
+        Mongo.Misc.updateOne(Filters.eq("type", "time_data"), Updates.set("name_changer.next_time", Instant.now().getEpochSecond() + (interval * 60L * 60)));
 
         this.ephemeral = true;
         this.response = "You surrendered your power.";

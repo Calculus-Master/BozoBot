@@ -63,7 +63,7 @@ public class TimeManager
         }
     }
 
-    enum TimeEntry
+    public enum TimeEntry
     {
         IDIOT_LIST("idiot_list", IdiotListEvent::triggerIdiotListPing),
         NAME_CHANGER("name_changer", NameChangeRoleEvent::cycleNameChangeRole),
