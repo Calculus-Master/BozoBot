@@ -1,5 +1,6 @@
 package com.calculusmaster.bozo.util;
 
+import com.calculusmaster.bozo.BozoBot;
 import com.calculusmaster.bozo.commands.*;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import kotlin.Pair;
@@ -30,6 +31,8 @@ import static com.calculusmaster.bozo.util.BotConfig.BANNED_CHANNELS;
 
 public class Listener extends ListenerAdapter
 {
+    private static boolean BOZOCORD_LOCK = false;
+
     public static void init()
     {
         CommandBozo.init();
@@ -213,7 +216,7 @@ public class Listener extends ListenerAdapter
             return;
         }
 
-        //Content-Based Responses
+        //Content-Based Responses (Immediate)
         if(!event.getAuthor().isBot() && content.length() >= 500)
         {
             event.getChannel().sendMessage("i ain't reading all that").queue();
@@ -247,21 +250,43 @@ public class Listener extends ListenerAdapter
         if(isBozocord && r.nextFloat() < 0.1F && content.contains("mods"))
             event.getChannel().sendMessage(event.getAuthor().getAsMention() + " they're watching you...").queue();
 
-        //General Responses
+        //General Responses (Delayed in Bozocord)
         if(data.messageCounterResponses >= data.responseInterval && !event.getAuthor().isBot() && r.nextFloat() < 0.05F)
         {
             List<String> oneWordResponses = new ArrayList<>(BotConfig.ONE_WORD_RESPONSES);
             oneWordResponses.add(event.getAuthor().getAsMention());
 
-            if(BotConfig.UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
-                event.getChannel().sendMessage(BotConfig.UNIQUE_RESPONSES.get(authorID)).queue();
-            else if(isBozocord && Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
-                event.getChannel().sendMessage("<#1020858333521002556>").queue();
-            else if(r.nextFloat() < 0.05F && r.nextFloat() < 0.35F && List.of("998041223489138738", "983450314885713943").contains(event.getChannel().getId()))
-                event.getChannel().sendMessage(BotConfig.D2_RESPONSES.get(r.nextInt(BotConfig.D2_RESPONSES.size()))).queue();
-            else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
+            String response;
 
-            data.messageCounterResponses = 0;
+            if(BotConfig.UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
+                response = BotConfig.UNIQUE_RESPONSES.get(authorID);
+            else if(isBozocord && Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.01F)
+                response ="<#1020858333521002556>";
+            else if(r.nextFloat() < 0.05F && r.nextFloat() < 0.35F && List.of("998041223489138738", "983450314885713943").contains(event.getChannel().getId()))
+                response = BotConfig.D2_RESPONSES.get(r.nextInt(BotConfig.D2_RESPONSES.size()));
+            else
+                response = oneWordResponses.get(r.nextInt(oneWordResponses.size()));
+
+            if(isBozocord && !BOZOCORD_LOCK)
+            {
+                BOZOCORD_LOCK = true;
+
+                event.getChannel()
+                        .sendTyping()
+                        .delay((long)(BotConfig.BOZOCORD_MESSAGE_DELAY * 1000L), TimeUnit.MILLISECONDS)
+                        .queue(v -> event.getChannel().sendMessage(response)
+                                .queue(m ->
+                                {
+                                    BOZOCORD_LOCK = false;
+                                    data.messageCounterResponses = 0;
+                                }
+                        ));
+            }
+            else
+            {
+                event.getChannel().sendMessage(response).queue();
+                data.messageCounterResponses = 0;
+            }
         }
         else if(event.getAuthor().isBot() && r.nextFloat() < (content.equalsIgnoreCase("best bot") ? 0.025F : 0.05F))
             event.getChannel().sendMessage("best bot").queue();
@@ -292,6 +317,17 @@ public class Listener extends ListenerAdapter
                 Mongo.QuestionsVotingDB.insertOne(attachmentData);
                 BozoLogger.info(Listener.class, "Inserted new attachment data into QuestionsVotingDB (ID: " + a.getId() + ").");
             });
+    }
+
+    private static void sendOneWordResponse(String authorID, Random r, MessageReceivedEvent event, List<String> oneWordResponses, boolean isBozocord)
+    {
+        if(BotConfig.UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
+            event.getChannel().sendMessage(BotConfig.UNIQUE_RESPONSES.get(authorID)).queue();
+        else if(isBozocord && Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.05F)
+            event.getChannel().sendMessage("<#1020858333521002556>").queue();
+        else if(r.nextFloat() < 0.05F && r.nextFloat() < 0.35F && List.of("998041223489138738", "983450314885713943").contains(event.getChannel().getId()))
+            event.getChannel().sendMessage(BotConfig.D2_RESPONSES.get(r.nextInt(BotConfig.D2_RESPONSES.size()))).queue();
+        else event.getChannel().sendMessage(oneWordResponses.get(r.nextInt(oneWordResponses.size()))).queue();
     }
 
     private static class CounterData
