@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.calculusmaster.bozo.BozoBot.BOT_JDA;
 import static com.calculusmaster.bozo.BozoBot.COMMANDS;
 import static com.calculusmaster.bozo.util.BotConfig.BANNED_CHANNELS;
 
@@ -50,6 +51,8 @@ public class Listener extends ListenerAdapter
         CommandRemoveNameChanger.init();
         CommandLeaderboard.init();
         CommandPoll.init();
+        CommandReminders.init();
+        CommandFood.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
@@ -175,6 +178,19 @@ public class Listener extends ListenerAdapter
         String content = event.getMessage().getContentRaw().toLowerCase();
 
         boolean isBozocord = guildID.equals("983450314885713940");
+
+        if(isBozocord && content.startsWith("<@1069804190458708049>"))
+        {
+            String query = content.substring("<@1069804190458708049>".length()).trim();
+
+            if(!query.isEmpty())
+            {
+                if(!GPTManager.canRequest()) event.getChannel().sendMessage("Try again in a minute (rate limits).").queue();
+                else event.getChannel().sendMessage(GPTManager.getResponse(query)).queue();
+
+                return;
+            }
+        }
 
         if(!COUNTER_DATA_MAP.containsKey(guildID))
         {

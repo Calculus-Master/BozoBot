@@ -181,7 +181,9 @@ public class CommandDev extends Command
         {
             BotConfig.init();
 
-            event.getChannel().sendMessage("Config Updated!\n" + Mongo.Misc.find(Filters.eq("type", "config")).first()).queue();
+            Document d = Mongo.Misc.find(Filters.eq("type", "config")).first();
+            d.put("reactions_pool", d.getList("reactions_pool", String.class).size());
+            event.getChannel().sendMessage("Config Updated!\n" + d).queue();
         }
         else if(command.getAsString().startsWith("addreaction"))
         {
