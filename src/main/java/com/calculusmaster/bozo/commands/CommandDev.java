@@ -160,8 +160,6 @@ public class CommandDev extends Command
         }
         else if(command.getAsString().equals("cyclenamechanger"))
             NameChangeRoleEvent.cycleNameChangeRole();
-        else if(command.getAsString().equals("checknamechanger"))
-            NameChangeRoleEvent.checkNameChangeCycler();
         else if(command.getAsString().equalsIgnoreCase("ghostping"))
             IdiotListEvent.triggerIdiotListPing();
         else if(command.getAsString().equals("autoapprovemoments"))
