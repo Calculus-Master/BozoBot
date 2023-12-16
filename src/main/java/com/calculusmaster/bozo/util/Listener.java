@@ -220,7 +220,7 @@ public class Listener extends ListenerAdapter
             event.getChannel().sendMessage("i'm happy for you tho").queue();
             event.getChannel().sendMessage("or sorry that happened").queue();
         }
-        else if(content.length() <= 100 && r.nextFloat() < 0.01F && event.getGuild().retrieveMember(event.getAuthor()).complete().getRoles().stream().anyMatch(role -> role.getId().equals("a")))
+        else if(content.length() <= 100 && r.nextFloat() < 0.01F && event.getGuild().retrieveMember(event.getAuthor()).complete().getRoles().stream().anyMatch(role -> role.getId().equals("1070462116655534101")))
         {
             StringBuilder modified = new StringBuilder();
             for(char c : event.getMessage().getContentRaw().toCharArray()) modified.append(r.nextBoolean() ? String.valueOf(c).toUpperCase() : String.valueOf(c).toLowerCase());
