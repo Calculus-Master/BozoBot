@@ -15,6 +15,7 @@ public class BotConfig
     public static String STARBOARD_REACTION = "";
     public static int STARBOARD_MIN_REACTIONS = 0;
     public static List<String> BANNED_CHANNELS = new ArrayList<>();
+    public static double BOZOCORD_MESSAGE_DELAY = 0.0;
 
     public static void init()
     {
@@ -28,5 +29,6 @@ public class BotConfig
         STARBOARD_REACTION = config.getString("starboard_reaction");
         STARBOARD_MIN_REACTIONS = config.getInteger("starboard_min_reactions");
         BANNED_CHANNELS = new ArrayList<>(config.getList("banned_channels", String.class));
+        BOZOCORD_MESSAGE_DELAY = config.getDouble("message_delay");
     }
 }

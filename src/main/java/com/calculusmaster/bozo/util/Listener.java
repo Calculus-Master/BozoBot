@@ -183,7 +183,7 @@ public class Listener extends ListenerAdapter
         {
             String query = content.substring("<@1069804190458708049>".length()).trim();
 
-            if(!query.isEmpty())
+            if(GPTManager.ENABLED && !query.isEmpty())
             {
                 if(!GPTManager.canRequest()) event.getChannel().sendMessage("Try again in a minute (rate limits).").queue();
                 else event.getChannel().sendMessage(GPTManager.getResponse(query)).queue();
@@ -214,7 +214,7 @@ public class Listener extends ListenerAdapter
         }
 
         //Content-Based Responses
-        if(content.length() >= 500)
+        if(!event.getAuthor().isBot() && content.length() >= 500)
         {
             event.getChannel().sendMessage("i ain't reading all that").queue();
             event.getChannel().sendMessage("i'm happy for you tho").queue();
