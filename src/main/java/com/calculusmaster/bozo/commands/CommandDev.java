@@ -2,8 +2,9 @@ package com.calculusmaster.bozo.commands;
 
 import com.calculusmaster.bozo.commands.core.Command;
 import com.calculusmaster.bozo.commands.core.CommandData;
-import com.calculusmaster.bozo.events.GhostPingEvent;
+import com.calculusmaster.bozo.events.IdiotListEvent;
 import com.calculusmaster.bozo.events.NameChangeRoleEvent;
+import com.calculusmaster.bozo.events.TimeManager;
 import com.calculusmaster.bozo.util.BotConfig;
 import com.calculusmaster.bozo.util.MessageLeaderboardHandler;
 import com.calculusmaster.bozo.util.Mongo;
@@ -22,7 +23,6 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class CommandDev extends Command
@@ -163,7 +163,7 @@ public class CommandDev extends Command
         else if(command.getAsString().equals("checknamechanger"))
             NameChangeRoleEvent.checkNameChangeCycler();
         else if(command.getAsString().equalsIgnoreCase("ghostping"))
-            GhostPingEvent.ghostPing();
+            IdiotListEvent.triggerIdiotListPing();
         else if(command.getAsString().equals("autoapprovemoments"))
         {
             Mongo.UserMomentsDB.find().forEach(d ->
@@ -213,6 +213,10 @@ public class CommandDev extends Command
                 else event.getChannel().sendMessage(event.getUser().getAsMention() + " - Failed to add Starboard post.").queue();
             });
         }
+        else if(command.getAsString().equals("updatetimeintervals"))
+            TimeManager.readIntervals();
+        else if(command.getAsString().equals("updatetimedata"))
+            TimeManager.readTimes();
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").setEphemeral(true).queue();

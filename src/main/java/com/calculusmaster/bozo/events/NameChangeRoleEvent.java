@@ -22,38 +22,6 @@ import java.util.stream.Collectors;
 
 public class NameChangeRoleEvent
 {
-    public static void startNameChangeCycler()
-    {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(NameChangeRoleEvent::checkNameChangeCycler, 0, 1, TimeUnit.HOURS);
-    }
-
-    public static void checkNameChangeCycler()
-    {
-        Document d = Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "name_change_cycler")).first());
-
-        int hours = d.getInteger("hours") - 1;
-
-        if(hours == 0)
-        {
-            try
-            {
-                NameChangeRoleEvent.cycleNameChangeRole();
-
-                Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", getTime()));
-            }
-            catch(NullPointerException e)
-            {
-                BozoLogger.error(NameChangeRoleEvent.class, "NPE caught in name changer role redistribution event.");
-            }
-        }
-        else Mongo.Misc.updateOne(Filters.eq("type", "name_change_cycler"), Updates.set("hours", hours));
-    }
-
-    public static int getTime()
-    {
-        return Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "name_changer_time")).first()).getInteger("time");
-    }
-
     public static void cycleNameChangeRole() throws NullPointerException
     {
         Guild bozoServer = Objects.requireNonNull(BozoBot.BOT_JDA.getGuildById("983450314885713940"));

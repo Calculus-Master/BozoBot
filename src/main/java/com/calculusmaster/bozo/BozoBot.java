@@ -1,9 +1,9 @@
 package com.calculusmaster.bozo;
 
-import com.calculusmaster.bozo.commands.CommandLFG;
 import com.calculusmaster.bozo.commands.CommandQuestions;
 import com.calculusmaster.bozo.commands.core.CommandData;
-import com.calculusmaster.bozo.events.GhostPingEvent;
+import com.calculusmaster.bozo.events.IdiotListEvent;
+import com.calculusmaster.bozo.events.TimeManager;
 import com.calculusmaster.bozo.util.*;
 import com.calculusmaster.bozo.events.NameChangeRoleEvent;
 import net.dv8tion.jda.api.JDA;
@@ -61,8 +61,7 @@ public class BozoBot
         BOT_JDA.getChannelById(TextChannel.class, "1069872555541938297").sendMessage("It's Bozo'in Time.").queue();
 
         //Events
-        NameChangeRoleEvent.startNameChangeCycler();
-        GhostPingEvent.startGhostPingCycler();
+        TimeManager.init();
         //CommandLFG.cleanUpPosts(); //TODO: Disabled temporarily
 
         GPTManager.init();

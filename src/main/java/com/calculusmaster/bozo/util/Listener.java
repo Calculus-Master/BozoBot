@@ -279,6 +279,7 @@ public class Listener extends ListenerAdapter
                                 {
                                     BOZOCORD_LOCK = false;
                                     data.messageCounterResponses = 0;
+                                    System.out.println("test");
                                 }
                         ));
             }
