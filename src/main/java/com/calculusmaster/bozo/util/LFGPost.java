@@ -248,6 +248,21 @@ public class LFGPost
         return this.no;
     }
 
+    public String getActivity()
+    {
+        return this.activity;
+    }
+
+    public int getPlayers()
+    {
+        return this.players;
+    }
+
+    public String getTime()
+    {
+        return this.time;
+    }
+
     public String getChannelID()
     {
         return this.channelID;

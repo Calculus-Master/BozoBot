@@ -1,6 +1,7 @@
 package com.calculusmaster.bozo.events;
 
 import com.calculusmaster.bozo.BozoBot;
+import com.calculusmaster.bozo.util.BotConfig;
 import com.calculusmaster.bozo.util.BozoLogger;
 import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
@@ -31,7 +32,7 @@ public class NameChangeRoleEvent
 
         Random r = new Random();
 
-        int nameChangers = 1;
+        int nameChangers = BotConfig.NAME_CHANGERS;
 
         List<String> inactiveBozos = Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "inactive_users_namechange")).first()).getList("list", String.class);
 

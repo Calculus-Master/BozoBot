@@ -153,7 +153,14 @@ public class CommandLFG extends Command
             else if(!event.getUser().getId().equals(post.getPostUserID()))
                 return this.error("Only the creator of the LFG Post (" + post.getPostUserName() + ") can edit it.", true);
 
-            if(timeOption != null && !post.setTime(timeOption.getAsString()))
+            List<String> changelog = new ArrayList<>();
+
+            if(timeOption != null)
+            {
+                String oldTime = post.getTime();
+                boolean t = post.setTime(timeOption.getAsString());
+
+                if(!t)
                     return this.error("""
                         Invalid input.
                         Supported formats are:
@@ -162,15 +169,25 @@ public class CommandLFG extends Command
                          - `Xh`: X hours from now.
                          - Any text: Custom "time" that will be displayed as-is.
                         """);
+                else
+                    changelog.add("Time: %s (was ||%s||)".formatted(post.getTime(), oldTime));
+            }
 
             if(activityOption != null)
             {
                 if(activityOption.getAsString().isEmpty()) return this.error("Activity name cannot be empty.");
-                else post.setActivity(activityOption.getAsString());
+                else
+                {
+                    changelog.add("Activity Name: \"%s\" (was ||\"%s\"||)".formatted(activityOption.getAsString(), post.getActivity()));
+                    post.setActivity(activityOption.getAsString());
+                }
             }
 
             if(playersOption != null)
+            {
+                changelog.add("Players: %s (was ||%s||)".formatted(playersOption.getAsInt(), post.getPlayers()));
                 post.setPlayers(Math.max(0, playersOption.getAsInt()));
+            }
 
             post.update();
 
@@ -190,7 +207,7 @@ public class CommandLFG extends Command
                     pings.remove(post.getPostUserID());
 
                     String pingsMessage = pings.stream().map(id -> "<@" + id + ">").collect(Collectors.joining(" "));
-                    m.getStartedThread().sendMessage("LFG Post Updated!\n" + pingsMessage).queue();
+                    m.getStartedThread().sendMessage("**LFG Post Updated!**\n" + String.join("\n", changelog) + "\n\n" + pingsMessage).queue();
                 }
             });
         }
