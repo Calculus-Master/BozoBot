@@ -56,6 +56,8 @@ public class Listener extends ListenerAdapter
         CommandPoll.init();
         CommandReminders.init();
         CommandFood.init();
+        CommandNameChangerTime.init();
+        CommandBingo.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
@@ -219,12 +221,15 @@ public class Listener extends ListenerAdapter
         //Content-Based Responses (Immediate)
         if(!event.getAuthor().isBot() && content.length() >= 500)
         {
-            event.getChannel().sendMessage("i ain't reading all that").queue();
-            event.getChannel().sendMessage("i'm happy for you tho").queue();
-            event.getChannel().sendMessage("or sorry that happened").queue();
+            event.getChannel().sendTyping().delay(1, TimeUnit.SECONDS).queue(m -> {
+                event.getChannel().sendMessage("i ain't reading all that").queue();
+                event.getChannel().sendMessage("i'm happy for you tho").queue();
+                event.getChannel().sendMessage("or sorry that happened").queue();
+            });
         }
         else if(content.length() <= 100 && r.nextFloat() < 0.005F && event.getGuild().retrieveMember(event.getAuthor()).complete().getRoles().stream().anyMatch(role -> role.getId().equals("1070462116655534101")))
         {
+            event.getChannel().sendTyping().queue();
             StringBuilder modified = new StringBuilder();
             for(char c : event.getMessage().getContentRaw().toCharArray()) modified.append(r.nextBoolean() ? String.valueOf(c).toUpperCase() : String.valueOf(c).toLowerCase());
             event.getChannel().sendMessage(modified.toString()).queue();
@@ -235,6 +240,8 @@ public class Listener extends ListenerAdapter
 
         if(!event.getAuthor().isBot() && r.nextFloat() < 0.75F && content.contains("upended"))
         {
+            event.getChannel().sendTyping().delay(400, TimeUnit.MILLISECONDS).queue();
+
             if(r.nextFloat() < 0.8F)
             {
                 event.getChannel().sendMessage("***THE UPENDED***").queue();

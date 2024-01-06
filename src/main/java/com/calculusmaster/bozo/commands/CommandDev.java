@@ -1,29 +1,30 @@
 package com.calculusmaster.bozo.commands;
 
+import com.calculusmaster.bozo.BozoBot;
 import com.calculusmaster.bozo.commands.core.Command;
 import com.calculusmaster.bozo.commands.core.CommandData;
 import com.calculusmaster.bozo.events.IdiotListEvent;
 import com.calculusmaster.bozo.events.NameChangeRoleEvent;
 import com.calculusmaster.bozo.events.TimeManager;
-import com.calculusmaster.bozo.util.BotConfig;
-import com.calculusmaster.bozo.util.MessageLeaderboardHandler;
-import com.calculusmaster.bozo.util.Mongo;
-import com.calculusmaster.bozo.util.StarboardPost;
+import com.calculusmaster.bozo.util.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.bson.Document;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 public class CommandDev extends Command
 {
@@ -215,6 +216,26 @@ public class CommandDev extends Command
             TimeManager.readIntervals();
         else if(command.getAsString().equals("updatetimedata"))
             TimeManager.readTimes();
+        else if(command.getAsString().startsWith("downloademoji"))
+        {
+            String path = command.getAsString().split("-")[1];
+            BozoBot.BOT_JDA.getGuildById("983450314885713940").retrieveEmojis().queue(list -> {
+                for(RichCustomEmoji rce : list)
+                {
+                    System.out.println("Downloading " + rce.getName() + "...");
+                    rce.getImage().downloadToFile(new File(path + "/" + rce.getName() + ".png"));
+                }
+            });
+        }
+        else if(command.getAsString().equals("generatebingoboard"))
+            Executors.newSingleThreadScheduledExecutor().execute(BingoManager::createBingoBoard);
+        else if(command.getAsString().startsWith("completebingosquare"))
+        {
+           String input = command.getAsString().split("-")[1];
+
+           int[] parsed = BingoManager.parseSquareCoordinate(input);
+           BingoManager.completeSquare(input, parsed[0], parsed[1]);
+        }
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").setEphemeral(true).queue();

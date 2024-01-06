@@ -6,6 +6,8 @@ import com.calculusmaster.bozo.events.IdiotListEvent;
 import com.calculusmaster.bozo.events.TimeManager;
 import com.calculusmaster.bozo.util.*;
 import com.calculusmaster.bozo.events.NameChangeRoleEvent;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -14,6 +16,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +37,7 @@ public class BozoBot
 
         BozoLogger.init("Questions Attachments", CommandQuestions::readAttachmentsCached);
         BozoLogger.init("Message Leaderboards", MessageLeaderboardHandler::init);
+        BozoLogger.init("Bingo Board List", BingoManager::init);
 
         JDABuilder bot = JDABuilder
                 .createDefault(HiddenConfig.TOKEN)

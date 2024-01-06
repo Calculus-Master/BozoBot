@@ -1,5 +1,6 @@
 package com.calculusmaster.bozo.events;
 
+import com.calculusmaster.bozo.util.BingoManager;
 import com.calculusmaster.bozo.util.Mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
@@ -67,6 +68,7 @@ public class TimeManager
     {
         IDIOT_LIST("idiot_list", IdiotListEvent::triggerIdiotListPing),
         NAME_CHANGER("name_changer", NameChangeRoleEvent::cycleNameChangeRole),
+        BINGO_BOARD("bingo_board", BingoManager::createBingoBoard),
 
         ;
         final String key;
