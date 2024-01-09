@@ -125,7 +125,7 @@ public class Listener extends ListenerAdapter
     {
         Poll poll = Poll.getPoll(event.getMessageId());
 
-        if(event.isFromGuild() && poll == null && event.getGuild().getId().equals("983450314885713940"))
+        if(false && event.isFromGuild() && poll == null && event.getGuild().getId().equals("983450314885713940"))
             event.retrieveUser().queue(u ->
                     event.getGuild().retrieveMemberById("309135641453527040").queue(m ->
                             m.getUser().openPrivateChannel().queue(c ->
