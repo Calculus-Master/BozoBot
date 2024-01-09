@@ -34,7 +34,8 @@ public class CommandBingo extends Command
                                 new SubcommandData("edit", "Edit an entry in the list of possible Bingo Board entries.")
                                         .addOption(OptionType.INTEGER, "number", "The entry number to edit. Use /bingo list to see the entries.", true)
                                         .addOption(OptionType.STRING, "entry", "The new entry.", true),
-                                new SubcommandData("list", "List all possible Bingo Board entries."),
+                                new SubcommandData("list", "List all possible Bingo Board entries.")
+                                        .addOption(OptionType.STRING, "search", "Search for entries that contain this string.", false),
                                 new SubcommandData("complete", "Mark a square as completed.")
                                         .addOption(OptionType.STRING, "square", "The square (A1, B3, etc.) to mark as completed. The letter is the row and the number is the column.", true, true),
                                 new SubcommandData("board", "View the current Bingo Board."),
@@ -93,10 +94,17 @@ public class CommandBingo extends Command
         {
             if(BingoManager.ENTRIES.isEmpty()) return this.error("No entries in the Bingo Board!");
 
+            String search = event.getOption("search") != null ? event.getOption("search").getAsString() : "";
+
             List<String> list = new ArrayList<>();
 
             for(int i = 0; i < BingoManager.ENTRIES.size(); i++)
-                list.add((i + 1) + ": " + BingoManager.ENTRIES.get(i));
+            {
+                String e = BingoManager.ENTRIES.get(i);
+
+                if(search.isEmpty() || e.toLowerCase().contains(search.toLowerCase()))
+                    list.add((i + 1) + ": " + e);
+            }
 
             String out = String.join("\n", list);
 
