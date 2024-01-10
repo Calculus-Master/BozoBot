@@ -296,7 +296,7 @@ public class Listener extends ListenerAdapter
                 data.messageCounterResponses = 0;
             }
         }
-        else if(event.getAuthor().isBot() && r.nextFloat() < (content.equalsIgnoreCase("best bot") ? 0.025F : 0.05F))
+        else if(event.getAuthor().isBot() && !event.getAuthor().getId().equals("1194488569050447953") && r.nextFloat() < (content.equalsIgnoreCase("best bot") ? 0.025F : 0.05F))
             event.getChannel().sendMessage("best bot").queue();
 
         //General Reactions
