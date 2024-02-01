@@ -37,6 +37,7 @@ public class BingoManager
     public static final List<Integer> FREE_SPACES = new ArrayList<>();
     private static final String PATH = System.getProperty("user.dir") + "/";
     private static final String BINGO_IMAGE_PATH = PATH + "latex2png/bingo_board_output.png";
+    private static final String BINGO_IMAGE_UNMARKED_PATH = PATH + "latex2png/bingo_board_output_unmarked.png";
     private static boolean[][] BOARD_COMPLETION = new boolean[5][5];
     private static final Bson QUERY = Filters.eq("type", "bingo_board");
 
@@ -53,6 +54,11 @@ public class BingoManager
         ).toList());
 
         FREE_SPACES.addAll(data.getList("free_spaces", Integer.class));
+
+        data.getList("completion", String.class).forEach(sq -> {
+            int[] coord = BingoManager.parseSquareCoordinate(sq);
+            BOARD_COMPLETION[coord[0]][coord[1]] = true;
+        });
     }
 
     //Bingo Board Generator
@@ -146,7 +152,7 @@ public class BingoManager
             BozoLogger.info(BingoManager.class, "Bingo Board: Finished editing output image, writing to disk...");
 
             ImageIO.write(bufferedImage, "png", new File(BINGO_IMAGE_PATH));
-            ImageIO.write(bufferedImage, "png", new File(PATH + "latex2png/bingo_board_output_unmarked.png"));
+            ImageIO.write(bufferedImage, "png", new File(BINGO_IMAGE_UNMARKED_PATH));
 
             BozoLogger.info(BingoManager.class, "Bingo Board: Output image has been written to disk.");
         }
@@ -162,7 +168,7 @@ public class BingoManager
                     .getChannelById(TextChannel.class, "1192397256649867275"));
 
             channel.retrieveMessageById(messageID).queue(m -> {
-                if(data.getInteger("bingo_count") == 0 && m.isPinned()) m.unpin().queue();
+                if(data.getInteger("bingo_count") > 0) m.pin().queue();
                 m.delete().queue();
             });
         }
@@ -203,11 +209,7 @@ public class BingoManager
                 .setFiles(FileUpload.fromData(new File(BINGO_IMAGE_PATH), "bingo.png"))
                 .queue(m -> {
                     if(setID)
-                    {
                         Mongo.Misc.updateOne(QUERY, Updates.set("message_id", m.getId()));
-
-                        if(!m.isPinned()) m.pin().queue();
-                    }
                 });
     }
 
@@ -232,15 +234,33 @@ public class BingoManager
                 .build()).queue();
     }
 
-    public static void completeSquare(String inputString, int x, int y)
+    public static void undoSquare(String square, int x, int y)
     {
-        BOARD_COMPLETION[x][y] = true;
-
-        int startX = 0, startY = 0;
-        int gridSize = 2000 / 5;
-
         try
         {
+            //Replace board with unmarked
+            BufferedImage image = ImageIO.read(new File(BINGO_IMAGE_UNMARKED_PATH));
+            ImageIO.write(image, "png", new File(BINGO_IMAGE_PATH));
+
+            BOARD_COMPLETION[x][y] = false;
+
+            Mongo.Misc.updateOne(QUERY, Updates.pull("completion", square));
+
+            Mongo.Misc.find(QUERY).first().getList("completion", String.class).forEach(sq -> {
+                int[] coord = BingoManager.parseSquareCoordinate(sq);
+                drawX(coord[0], coord[1]);
+            });
+        }
+        catch(Exception ignored) {}
+    }
+
+    private static void drawX(int x, int y)
+    {
+        try
+        {
+            int startX = 0, startY = 0;
+            int gridSize = 2000 / 5;
+
             BufferedImage bingoBoard = ImageIO.read(new File(BINGO_IMAGE_PATH));
             Image redX = ImageIO.read(new File(PATH + "latex2png/red_x.png")).getScaledInstance(gridSize, gridSize, BufferedImage.SCALE_DEFAULT);
 
@@ -258,6 +278,13 @@ public class BingoManager
 
             ImageIO.write(bingoBoard, "png", new File(BINGO_IMAGE_PATH));
         } catch(Exception ignored) {}
+    }
+
+    public static void completeSquare(String inputString, int x, int y)
+    {
+        BOARD_COMPLETION[x][y] = true;
+
+        BingoManager.drawX(x, y);
 
         Mongo.Misc.updateOne(QUERY, Updates.push("completion", inputString));
 

@@ -254,7 +254,7 @@ public class Listener extends ListenerAdapter
             }
         }
 
-        if(isBozocord && r.nextFloat() < 0.1F && content.contains("mods"))
+        if(isBozocord && r.nextFloat() < 0.05F && content.contains("mods"))
             event.getChannel().sendMessage(event.getAuthor().getAsMention() + " they're watching you...").queue();
 
         //General Responses (Delayed in Bozocord)
@@ -265,10 +265,12 @@ public class Listener extends ListenerAdapter
 
             String response;
 
-            if(BotConfig.UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.15F)
+            if(BotConfig.UNIQUE_RESPONSES.containsKey(authorID) && r.nextFloat() < 0.1F)
                 response = BotConfig.UNIQUE_RESPONSES.get(authorID);
+            else if((content.contains("40k") || content.contains("40,000") || content.contains("40000")) && authorID.equals("490401640843706368") && r.nextFloat() < 0.1F)
+                response = "<#1084332718332051546>";
             else if(isBozocord && Objects.requireNonNull(event.getMember()).getRoles().stream().noneMatch(role -> role.getId().equals("1015047797420085329")) && r.nextFloat() < 0.01F)
-                response ="<#1020858333521002556>";
+                response = "<#1020858333521002556>";
             else if(r.nextFloat() < 0.05F && r.nextFloat() < 0.35F && List.of("998041223489138738", "983450314885713943").contains(event.getChannel().getId()))
                 response = BotConfig.D2_RESPONSES.get(r.nextInt(BotConfig.D2_RESPONSES.size()));
             else

@@ -5,6 +5,7 @@ import com.calculusmaster.bozo.commands.core.CommandData;
 import com.calculusmaster.bozo.util.BingoManager;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -39,6 +40,8 @@ public class CommandBingo extends Command
                                 new SubcommandData("complete", "Mark a square as completed.")
                                         .addOption(OptionType.STRING, "square", "The square (A1, B3, etc.) to mark as completed. The letter is the row and the number is the column.", true, true),
                                 new SubcommandData("board", "View the current Bingo Board."),
+                                new SubcommandData("undo", "Undo a space.")
+                                        .addOption(OptionType.STRING, "square", "The square (A1, B3, etc.) to undo. The letter is the row and the number is the column.", true, true),
                                 new SubcommandData("add-free-space", "Set a Bingo entry as a free space.")
                                         .addOption(OptionType.INTEGER, "number", "The entry number to set as free. Use /bingo list to see the entries.", true),
                                 new SubcommandData("remove-free-space", "Remove a Bingo entry as a free space.")
@@ -137,6 +140,24 @@ public class CommandBingo extends Command
 
             this.response = "Sent!";
             this.ephemeral = true;
+        }
+        else if(subcommand.equals("undo"))
+        {
+            String square = Objects.requireNonNull(event.getOption("square")).getAsString();
+
+            if(!BingoManager.isValidSquare(square))
+                return this.error("Invalid square! Valid inputs are A1, B3, C5, D2, etc. Letters (rows) are A-E and numbers (columns) are 1-5.");
+
+            int[] coords = BingoManager.parseSquareCoordinate(square);
+
+            if(!BingoManager.isSquareCompleted(coords[0], coords[1]))
+                return this.error("Square is not completed!");
+
+            event.deferReply().queue(hook -> {
+                BingoManager.undoSquare(square, coords[0], coords[1]);
+
+                hook.editOriginal("Undid `" + square + "`! Use `/bingo board` to see the updated board.").queue();
+            });
         }
         else if(subcommand.equals("add-free-space"))
         {

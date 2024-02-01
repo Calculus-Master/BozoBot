@@ -20,6 +20,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.bson.Document;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -235,6 +238,33 @@ public class CommandDev extends Command
 
            int[] parsed = BingoManager.parseSquareCoordinate(input);
            BingoManager.completeSquare(input, parsed[0], parsed[1]);
+        }
+        else if(command.getAsString().equals("scaledownbingoboard"))
+        {
+            try
+            {
+                BozoLogger.info(BingoManager.class, "Bingo Board: Starting to scale down output image.");
+
+                int w = 2000, h = 2000;
+                Image image = ImageIO.read(new File(System.getProperty("user.dir") + "/latex2png/bingo_board_output.png"))
+                        .getSubimage(0, 0, 16969, 16969)
+                        .getScaledInstance(w, h, BufferedImage.SCALE_DEFAULT);
+
+                BufferedImage bufferedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                bufferedImage.getGraphics().drawImage(image, 0, 0, null);
+
+                BozoLogger.info(BingoManager.class, "Bingo Board: Finished editing output image, writing to disk...");
+
+                ImageIO.write(bufferedImage, "png", new File(System.getProperty("user.dir") + "/latex2png/bingo_board_output.png"));
+                ImageIO.write(bufferedImage, "png", new File(System.getProperty("user.dir") + "/latex2png/bingo_board_output_unmarked.png"));
+
+                BozoLogger.info(BingoManager.class, "Bingo Board: Output image has been written to disk.");
+            }
+            catch(Exception e)
+            {
+                BozoLogger.error(BingoManager.class, "Bingo Board: Failed to scale down output image! Exception: \n");
+                e.printStackTrace();
+            }
         }
         else return this.error("Invalid command!");
 
