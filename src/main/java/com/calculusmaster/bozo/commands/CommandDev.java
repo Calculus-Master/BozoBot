@@ -266,7 +266,7 @@ public class CommandDev extends Command
                 e.printStackTrace();
             }
         }
-        else if(command.equals("memory"))
+        else if(command.getAsString().equals("memory"))
         {
             Runtime r = Runtime.getRuntime();
             long total = r.totalMemory();
