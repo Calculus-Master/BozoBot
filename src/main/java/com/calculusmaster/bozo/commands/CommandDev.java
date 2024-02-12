@@ -266,6 +266,13 @@ public class CommandDev extends Command
                 e.printStackTrace();
             }
         }
+        else if(command.equals("memory"))
+        {
+            Runtime r = Runtime.getRuntime();
+            long total = r.totalMemory();
+            long free = r.freeMemory();
+            event.getChannel().sendMessage("Free: %s MB (%s B)\nTotal: %s MB (%s B)".formatted(free / 1024L / 1024L, free, total / 1024L / 1024L, total)).queue();
+        }
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").setEphemeral(true).queue();

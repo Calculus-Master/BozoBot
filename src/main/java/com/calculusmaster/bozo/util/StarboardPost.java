@@ -104,7 +104,7 @@ public class StarboardPost
 
         Guild bozocord = Objects.requireNonNull(BozoBot.BOT_JDA.getGuildById("983450314885713940"));
         Objects.requireNonNull(bozocord.getChannelById(TextChannel.class, "1149543873211797554"))
-                .editMessageById(this.postMessageID, "Score: %s".formatted(this.reactions))
+                .editMessageById(this.postMessageID, "# Score: %s".formatted(this.reactions))
                 .queue();
     }
 }
