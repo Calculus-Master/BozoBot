@@ -42,11 +42,13 @@ public class CommandSuggestBozo extends Command
             String yes = "<:thunmb:1037162867276906557>";
             String yesNoRole = "<:thonkvitor:1072993154468425839>";
             String no = "<:JongoNuhUh:1089413964745683006>";
+            String who = "<:WHO:1200621234367508481>";
 
             event.getChannel().sendMessage("Should **" + targetUser + "** become a bozo? (Suggestion By: " + voter + ")\n").queue(m -> {
                 m.addReaction(Emoji.fromFormatted(yes)).queue();
                 m.addReaction(Emoji.fromFormatted(yesNoRole)).queue();
                 m.addReaction(Emoji.fromFormatted(no)).queue();
+                m.addReaction(Emoji.fromFormatted(who)).queue();
                 m.pin().queue();
             });
         }
