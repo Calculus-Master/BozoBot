@@ -273,6 +273,14 @@ public class CommandDev extends Command
             long free = r.freeMemory();
             event.getChannel().sendMessage("Free: %s MB (%s B)\nTotal: %s MB (%s B)".formatted(free / 1024L / 1024L, free, total / 1024L / 1024L, total)).queue();
         }
+        else if(command.getAsString().equals("manualbozo"))
+        {
+            event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("983456276803624961")).queue();
+        }
+        else if(command.getAsString().equals("resetnickname"))
+        {
+            event.getGuild().modifyNickname(event.getGuild().getMemberById("1069804190458708049"), BozoBot.BOT_JDA.getSelfUser().getName()).queue();
+        }
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").setEphemeral(true).queue();

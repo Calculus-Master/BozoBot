@@ -192,18 +192,23 @@ public class BingoManager
         BingoManager.sendBingoBoard(false);
     }
 
-    public static void sendBingoBoard(boolean setID)
+    private static EmbedBuilder createBoardEmbed()
     {
-        TextChannel channel = Objects.requireNonNull(BozoBot.BOT_JDA
-                .getGuildById("983450314885713940")
-                .getChannelById(TextChannel.class, "1192397256649867275"));
-
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Daily Bingo – " + Mongo.Misc.find(QUERY).first().getString("date"))
                 .setImage("attachment://bingo.png");
 
         int bingoCount = BingoManager.getBingoCount();
         if(bingoCount > 0) embed.setDescription("Bingo(s): **" + bingoCount + "**");
+
+        return embed;
+    }
+
+    public static void sendBingoBoard(boolean setID)
+    {
+        TextChannel channel = BingoManager.getBingoChannel();
+
+        EmbedBuilder embed = BingoManager.createBoardEmbed();
 
         channel.sendMessageEmbeds(embed.build())
                 .setFiles(FileUpload.fromData(new File(BINGO_IMAGE_PATH), "bingo.png"))
@@ -215,18 +220,11 @@ public class BingoManager
 
     public static void editBingoBoard()
     {
-        TextChannel channel = Objects.requireNonNull(BozoBot.BOT_JDA
-                .getGuildById("983450314885713940")
-                .getChannelById(TextChannel.class, "1192397256649867275"));
+        TextChannel channel = BingoManager.getBingoChannel();
 
         Document data = Objects.requireNonNull(Mongo.Misc.find(QUERY).first());
 
-        EmbedBuilder embed = new EmbedBuilder()
-                .setTitle("Daily Bingo – " + data.getString("date"))
-                .setImage("attachment://bingo.png");
-
-        int bingoCount = BingoManager.getBingoCount();
-        if(bingoCount > 0) embed.setDescription("Bingo(s): **" + bingoCount + "**");
+        EmbedBuilder embed = BingoManager.createBoardEmbed();
 
         channel.editMessageById(data.getString("message_id"), new MessageEditBuilder()
                 .setEmbeds(embed.build())
@@ -250,6 +248,8 @@ public class BingoManager
                 int[] coord = BingoManager.parseSquareCoordinate(sq);
                 drawX(coord[0], coord[1]);
             });
+
+            BingoManager.editBingoBoard();
         }
         catch(Exception ignored) {}
     }
@@ -302,8 +302,9 @@ public class BingoManager
             channel.sendMessage("Bingo! (Count: %s -> %s)".formatted(oldBingoCount, bingoCount)).queue();
 
             BingoManager.sendBingoBoard();
-            BingoManager.editBingoBoard();
         }
+
+        BingoManager.editBingoBoard();
     }
 
     public static boolean isSquareCompleted(int x, int y)
@@ -362,6 +363,14 @@ public class BingoManager
     public static boolean isValidSquare(String input)
     {
         return input.length() == 2 && List.of("A", "B", "C", "D", "E").contains(input.substring(0, 1)) && List.of("1", "2", "3", "4", "5").contains(input.substring(1));
+    }
+
+    //Utility
+    public static TextChannel getBingoChannel()
+    {
+        return Objects.requireNonNull(BozoBot.BOT_JDA
+                .getGuildById("983450314885713940")
+                .getChannelById(TextChannel.class, "1192397256649867275"));
     }
 
     //Board Free Space Updater
