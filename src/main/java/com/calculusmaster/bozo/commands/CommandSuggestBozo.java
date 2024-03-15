@@ -18,6 +18,7 @@ public class CommandSuggestBozo extends Command
                 .withCommand(Commands
                         .slash("suggestbozo", "Suggest a potential bozo.")
                         .addOption(OptionType.STRING, "user", "User to suggest.", true)
+                        .addOption(OptionType.BOOLEAN, "pin", "Whether to ping the suggestion or not.", false)
                 )
                 .register();
     }
@@ -49,7 +50,9 @@ public class CommandSuggestBozo extends Command
                 m.addReaction(Emoji.fromFormatted(yesNoRole)).queue();
                 m.addReaction(Emoji.fromFormatted(no)).queue();
                 m.addReaction(Emoji.fromFormatted(who)).queue();
-                m.pin().queue();
+
+                if(event.getOption("pin") == null || event.getOption("pin").getAsBoolean())
+                    m.pin().queue();
             });
         }
 
