@@ -18,7 +18,7 @@ public class CommandSuggestBozo extends Command
                 .withCommand(Commands
                         .slash("suggestbozo", "Suggest a potential bozo.")
                         .addOption(OptionType.STRING, "user", "User to suggest.", true)
-                        .addOption(OptionType.BOOLEAN, "pin", "Whether to ping the suggestion or not.", false)
+                        .addOption(OptionType.BOOLEAN, "pin", "Whether to pin the suggestion or not.", false)
                 )
                 .register();
     }

@@ -188,10 +188,24 @@ public class Listener extends ListenerAdapter
         {
             String query = content.substring("<@1069804190458708049>".length()).trim();
 
-            if(GPTManager.ENABLED && !query.isEmpty())
+//            if(GPTManager.ENABLED && !query.isEmpty())
+//            {
+//                if(!GPTManager.canRequest()) event.getChannel().sendMessage("Try again in a minute (rate limits).").queue();
+//                else event.getChannel().sendMessage(GPTManager.getResponse(query)).queue();
+//
+//                return;
+//            }
+
+            if(ClaudeInterface.ENABLED && !query.isEmpty() && (!ClaudeInterface.DEV_ONLY || event.getAuthor().getId().equals("309135641453527040")))
             {
-                if(!GPTManager.canRequest()) event.getChannel().sendMessage("Try again in a minute (rate limits).").queue();
-                else event.getChannel().sendMessage(GPTManager.getResponse(query)).queue();
+                try
+                {
+                    String response = ClaudeInterface.submit(query);
+                    event.getChannel().sendTyping().delay(500, TimeUnit.MILLISECONDS).queue(v -> event.getChannel().sendMessage(response).queue());
+                } catch(Exception e)
+                {
+                    BozoLogger.error(Listener.class, "Error submitting to Claude: " + e.getMessage());
+                }
 
                 return;
             }
@@ -238,19 +252,27 @@ public class Listener extends ListenerAdapter
         if(r.nextFloat() < 0.2F && content.contains("rose"))
             event.getChannel().sendMessage("\"Strong hands he held a " + (r.nextFloat() < 0.2F ? "cock" : "rose") +  ",aura burn bright.\" - " + event.getMember().getEffectiveName()).queue();
 
-        if(!event.getAuthor().isBot() && r.nextFloat() < 0.75F && content.contains("upended"))
+        if(!event.getAuthor().isBot() && r.nextFloat() < 0.5F && content.contains("upended"))
         {
             event.getChannel().sendTyping().delay(400, TimeUnit.MILLISECONDS).queue();
 
             if(r.nextFloat() < 0.8F)
             {
-                event.getChannel().sendMessage("***THE UPENDED***").queue();
-                event.getChannel().sendMessage("***A TITLE SUITABLE FOR THAT WHICH TURNS WORLDS UPSIDE DOWN***").queue();
+                event.getChannel().sendMessage("# THE UPENDED").queue();
+                event.getChannel().sendMessage("# A TITLE SUITABLE FOR THAT WHICH TURNS WORLDS UPSIDE DOWN").queue();
             }
             else
             {
-                event.getChannel().sendMessage("***THE APPENDED***").queue();
-                event.getChannel().sendMessage("***A TITLE SUITABLE FOR THAT WHICH EXTENDS***").queue();
+                if(r.nextFloat() < 0.7F)
+                {
+                    event.getChannel().sendMessage("# THE APPENDED").queue();
+                    event.getChannel().sendMessage("# A TITLE SUITABLE FOR THAT WHICH EXTENDS").queue();
+                }
+                else
+                {
+                    event.getChannel().sendMessage("# THE APPENDIX").queue();
+                    event.getChannel().sendMessage("# A TITLE SUITABLE FOR THAT WHICH EXPLODES AND BETRAYS YOU").queue();
+                }
             }
         }
 

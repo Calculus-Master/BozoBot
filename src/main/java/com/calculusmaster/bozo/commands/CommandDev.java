@@ -281,6 +281,16 @@ public class CommandDev extends Command
         {
             event.getGuild().modifyNickname(event.getGuild().getMemberById("1069804190458708049"), BozoBot.BOT_JDA.getSelfUser().getName()).queue();
         }
+        else if(command.getAsString().equals("toggleai"))
+        {
+            ClaudeInterface.ENABLED = !ClaudeInterface.ENABLED;
+            event.getChannel().sendMessage("AI Enabled: " + ClaudeInterface.ENABLED).queue();
+        }
+        else if(command.getAsString().equals("toggleaidevonly"))
+        {
+            ClaudeInterface.DEV_ONLY = !ClaudeInterface.DEV_ONLY;
+            event.getChannel().sendMessage("AI Dev Only: " + ClaudeInterface.DEV_ONLY).queue();
+        }
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").setEphemeral(true).queue();
