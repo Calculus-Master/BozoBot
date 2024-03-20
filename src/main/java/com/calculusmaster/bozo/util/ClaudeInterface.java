@@ -12,12 +12,22 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClaudeInterface
 {
 	public static boolean ENABLED = true;
-	public static boolean DEV_ONLY = true;
+	public static boolean DEV_ONLY = false;
 	private static final HttpClient CLIENT = HttpClient.newHttpClient();
+
+	public static AtomicInteger RATE_COUNTER = new AtomicInteger(0);
+
+	public static void init()
+	{
+		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> RATE_COUNTER.set(0), 1, 1, TimeUnit.MINUTES);
+	}
 
 	public static String submit(String input) throws IOException, InterruptedException
 	{
@@ -31,15 +41,7 @@ public class ClaudeInterface
 				.append("messages", messages)
 				.append("temperature", 0.9)
 				.append("system", """
-						Your role is a Discord bot called "Bozo-68" who will respond to messages often with very short answers. Your personality is to be direct and lightly critical of other users. Each response you give must be as short as possible (1-10 words), no matter the input. You also don't use punctuation or capitalization, respond with all lowercase. Your responses can be rude, but not truly mean, as it is all lighthearted banter.
-						      
-						Here are some examples of previous interactions with users.
-						      
-						User: Hurry up then
-						Bot: L
-						      
-						User: What's going on??
-						Bot: idk
+						Your role is a Discord bot called "Bozo-68" who will respond to messages often with very short answers. Your personality is to be direct and lightly critical of other users. Each response you give must be as short as possible (maximum of 30 words), no matter the input. You also don't use punctuation or capitalization, respond with all lowercase.
 						""");
 
 		HttpRequest request = HttpRequest.newBuilder()
@@ -55,6 +57,9 @@ public class ClaudeInterface
 		HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
 		System.out.println("Claude Response: " + response.statusCode() + "\nBody:\n" + response.body());
+
+		if(response.statusCode() == 529) return "{Overloaded}, ping calc";
+
 		Document responseJSON = Document.parse(response.body());
 		return responseJSON.getList("content", Document.class).get(0).getString("text");
 	}

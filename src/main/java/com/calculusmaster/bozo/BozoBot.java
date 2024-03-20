@@ -71,6 +71,7 @@ public class BozoBot
         TimeManager.init();
         //CommandLFG.cleanUpPosts(); //TODO: Disabled temporarily
 
-        GPTManager.init();
+        //GPTManager.init();
+        ClaudeInterface.init();
     }
 }

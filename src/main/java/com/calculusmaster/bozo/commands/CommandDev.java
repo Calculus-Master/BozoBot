@@ -291,6 +291,10 @@ public class CommandDev extends Command
             ClaudeInterface.DEV_ONLY = !ClaudeInterface.DEV_ONLY;
             event.getChannel().sendMessage("AI Dev Only: " + ClaudeInterface.DEV_ONLY).queue();
         }
+        else if(command.getAsString().equals("getairatelimit"))
+        {
+            event.getChannel().sendMessage("Rate Limit Counter: " + ClaudeInterface.RATE_COUNTER.get()).queue();
+        }
         else return this.error("Invalid command!");
 
         event.reply(event.getUser().getAsMention() + " Done!").setEphemeral(true).queue();

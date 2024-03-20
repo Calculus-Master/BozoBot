@@ -198,16 +198,22 @@ public class Listener extends ListenerAdapter
 
             if(ClaudeInterface.ENABLED && !query.isEmpty() && (!ClaudeInterface.DEV_ONLY || event.getAuthor().getId().equals("309135641453527040")))
             {
-                try
+                if(ClaudeInterface.RATE_COUNTER.get() <= 3)
                 {
-                    String response = ClaudeInterface.submit(query);
-                    event.getChannel().sendTyping().delay(500, TimeUnit.MILLISECONDS).queue(v -> event.getChannel().sendMessage(response).queue());
-                } catch(Exception e)
-                {
-                    BozoLogger.error(Listener.class, "Error submitting to Claude: " + e.getMessage());
-                }
+                    try
+                    {
+                        String response = ClaudeInterface.submit(query);
+                        event.getChannel().sendTyping().delay(300, TimeUnit.MILLISECONDS).queue(v -> event.getChannel().sendMessage(response).setMessageReference(event.getMessage()).mentionRepliedUser(false).queue());
 
-                return;
+                        ClaudeInterface.RATE_COUNTER.incrementAndGet();
+                    } catch(Exception e)
+                    {
+                        BozoLogger.error(Listener.class, "Error submitting to Claude: " + e.getMessage());
+                    }
+
+                    return;
+                }
+                else event.getMessage().addReaction(Emoji.fromFormatted("🕒")).queue();
             }
         }
 
