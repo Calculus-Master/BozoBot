@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -58,6 +59,7 @@ public class Listener extends ListenerAdapter
         CommandFood.init();
         CommandNameChangerTime.init();
         CommandBingo.init();
+        CommandPurgeMemory.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
@@ -196,13 +198,13 @@ public class Listener extends ListenerAdapter
 //                return;
 //            }
 
-            if(ClaudeInterface.ENABLED && !query.isEmpty() && (!ClaudeInterface.DEV_ONLY || event.getAuthor().getId().equals("309135641453527040")))
+            if(ClaudeInterface.ENABLED && !query.isEmpty() && event.getChannel().getId().equals("1069872555541938297") && (!ClaudeInterface.DEV_ONLY || event.getAuthor().getId().equals("309135641453527040")))
             {
                 if(ClaudeInterface.RATE_COUNTER.get() <= 3)
                 {
                     try
                     {
-                        String response = ClaudeInterface.submit(query);
+                        String response = ClaudeInterface.submit(event.getAuthor().getId() + ": " + query);
                         event.getChannel().sendTyping().delay(300, TimeUnit.MILLISECONDS).queue(v -> event.getChannel().sendMessage(response).setMessageReference(event.getMessage()).mentionRepliedUser(false).queue());
 
                         ClaudeInterface.RATE_COUNTER.incrementAndGet();
