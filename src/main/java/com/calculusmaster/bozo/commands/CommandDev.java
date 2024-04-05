@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class CommandDev extends Command
 {
@@ -294,6 +295,10 @@ public class CommandDev extends Command
         else if(command.getAsString().equals("getairatelimit"))
         {
             event.getChannel().sendMessage("Rate Limit Counter: " + ClaudeInterface.RATE_COUNTER.get()).queue();
+        }
+        else if(command.getAsString().equals("listbozos"))
+        {
+            event.getGuild().findMembersWithRoles(event.getGuild().getRoleById("983456276803624961")).onSuccess(list -> event.getChannel().sendMessage(list.stream().map(m -> m.getUser().getName().replaceAll("_", "\\\\_")).collect(Collectors.joining("\n"))).queue());
         }
         else return this.error("Invalid command!");
 

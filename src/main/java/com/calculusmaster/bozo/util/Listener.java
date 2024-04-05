@@ -198,7 +198,7 @@ public class Listener extends ListenerAdapter
 //                return;
 //            }
 
-            if(ClaudeInterface.ENABLED && !query.isEmpty() && event.getChannel().getId().equals("1069872555541938297") && (!ClaudeInterface.DEV_ONLY || event.getAuthor().getId().equals("309135641453527040")))
+            if(ClaudeInterface.ENABLED && !query.isEmpty() && event.getChannel().getId().equals("1222334491184337016") && (!ClaudeInterface.DEV_ONLY || event.getAuthor().getId().equals("309135641453527040")))
             {
                 if(ClaudeInterface.RATE_COUNTER.get() <= 3)
                 {
