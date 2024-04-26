@@ -54,12 +54,12 @@ public class Listener extends ListenerAdapter
         CommandLFG.init();
         CommandRemoveNameChanger.init();
         CommandLeaderboard.init();
-        CommandPoll.init();
         CommandReminders.init();
         CommandFood.init();
         CommandNameChangerTime.init();
         CommandBingo.init();
         CommandPurgeMemory.init();
+        CommandName.init();
     }
 
     private CommandData findCommandData(Predicate<CommandData> predicate)
@@ -123,24 +123,6 @@ public class Listener extends ListenerAdapter
     }
 
     @Override
-    public void onMessageReactionRemove(MessageReactionRemoveEvent event)
-    {
-        Poll poll = Poll.getPoll(event.getMessageId());
-
-        if(false && event.isFromGuild() && poll == null && event.getGuild().getId().equals("983450314885713940"))
-            event.retrieveUser().queue(u ->
-                    event.getGuild().retrieveMemberById("309135641453527040").queue(m ->
-                            m.getUser().openPrivateChannel().queue(c ->
-                                    c.sendMessage("Reaction {%s} removed by {%s} in the channel {%s}.".formatted(event.getReaction().getEmoji().getName(), u.getName(), event.getChannel().getAsMention())).queue()
-                            )
-                    )
-            );
-
-        if(!event.getUserId().equals("1069804190458708049") && poll != null && !poll.isAnonymous())
-            poll.removeVote(event.getUserId());
-    }
-
-    @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event)
     {
         boolean isBozocord = event.getGuild().getId().equals("983450314885713940");
@@ -148,13 +130,6 @@ public class Listener extends ListenerAdapter
         {
             if(event.getReaction().getEmoji().getAsReactionCode().equals(BotConfig.STARBOARD_REACTION))
                 Executors.newSingleThreadScheduledExecutor().schedule(() -> event.retrieveMessage().queue(this::checkAndUpdateStarboard), 5, TimeUnit.SECONDS);
-        }
-
-        Poll poll = Poll.getPoll(event.getMessageId());
-        if(!event.getUserId().equals("1069804190458708049") && poll != null)
-        {
-            poll.addVote(event.getUserId(), event.getReaction().getEmoji().getAsReactionCode());
-            if(poll.isAnonymous()) event.getReaction().removeReaction(event.retrieveUser().complete()).queue();
         }
     }
 
@@ -177,7 +152,6 @@ public class Listener extends ListenerAdapter
     public void onMessageReceived(MessageReceivedEvent event)
     {
         if(!event.isFromGuild()) return;
-        else if(Poll.getPoll(event.getMessageId()) != null) return;
 
         Random r = new Random();
         String guildID = event.getGuild().getId();
@@ -189,14 +163,6 @@ public class Listener extends ListenerAdapter
         if(isBozocord && content.startsWith("<@1069804190458708049>"))
         {
             String query = content.substring("<@1069804190458708049>".length()).trim();
-
-//            if(GPTManager.ENABLED && !query.isEmpty())
-//            {
-//                if(!GPTManager.canRequest()) event.getChannel().sendMessage("Try again in a minute (rate limits).").queue();
-//                else event.getChannel().sendMessage(GPTManager.getResponse(query)).queue();
-//
-//                return;
-//            }
 
             if(ClaudeInterface.ENABLED && !query.isEmpty() && event.getChannel().getId().equals("1222334491184337016") && (!ClaudeInterface.DEV_ONLY || event.getAuthor().getId().equals("309135641453527040")))
             {
