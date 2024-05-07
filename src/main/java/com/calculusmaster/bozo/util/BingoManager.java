@@ -169,7 +169,6 @@ public class BingoManager
 
             channel.retrieveMessageById(messageID).queue(m -> {
                 if(data.getInteger("bingo_count") > 0) m.pin().queue();
-                m.delete().queue();
             });
         }
 

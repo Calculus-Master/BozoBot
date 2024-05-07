@@ -31,7 +31,7 @@ public class IdiotListEvent
 
             idiotListChannel.sendMessage(victim.getAsMention()).queue();
 
-            BozoLogger.info(IdiotListEvent.class, "Idiot list pinged " + victim.getUser().getAsTag() + " (" + victim.getId() + ")!");
+            BozoLogger.info(IdiotListEvent.class, "Idiot list pinged " + victim.getUser().getName() + " (" + victim.getId() + ")!");
         }).onError(t -> BozoLogger.error(IdiotListEvent.class, "Error in idiot list ping event: " + t.getMessage()));
     }
 }
