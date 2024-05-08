@@ -17,6 +17,7 @@ public class BotConfig
     public static List<String> BANNED_CHANNELS = new ArrayList<>();
     public static double BOZOCORD_MESSAGE_DELAY = 0.0;
     public static int NAME_CHANGERS = 1;
+    public static int MAX_PREVIOUS_NAME_CHANGERS = 5;
 
     public static void init()
     {
@@ -32,5 +33,6 @@ public class BotConfig
         BANNED_CHANNELS = new ArrayList<>(config.getList("banned_channels", String.class));
         BOZOCORD_MESSAGE_DELAY = config.getDouble("message_delay");
         NAME_CHANGERS = config.getInteger("name_changers");
+        MAX_PREVIOUS_NAME_CHANGERS = config.getInteger("max_previous_name_changers");
     }
 }

@@ -35,10 +35,11 @@ public class NameChangeRoleEvent
         int nameChangers = BotConfig.NAME_CHANGERS;
 
         List<String> inactiveBozos = Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "inactive_users_namechange")).first()).getList("list", String.class);
+        List<String> previousNameChangers = Objects.requireNonNull(Mongo.Misc.find(Filters.eq("type", "previous_name_changers")).first()).getList("list", String.class);
 
         bozoServer.findMembersWithRoles(basicBozoRole).onSuccess(m -> {
             List<Member> members = new ArrayList<>(m);
-            members.removeIf(mem -> mem.getUser().isBot() || mem.getRoles().contains(nameChangerBozoRole) || inactiveBozos.contains(mem.getId()));
+            members.removeIf(mem -> mem.getUser().isBot() || mem.getRoles().contains(nameChangerBozoRole) || inactiveBozos.contains(mem.getId()) || previousNameChangers.contains(mem.getId()));
 
             BozoLogger.info(NameChangeRoleEvent.class, "Loaded " + members.size() + " Members: " + m.stream().map(ISnowflake::getId).collect(Collectors.joining(", ")));
 
@@ -56,12 +57,18 @@ public class NameChangeRoleEvent
                             Member newNameChanger = members.get(r.nextInt(members.size()));
                             members.remove(newNameChanger);
 
+                            if(previousNameChangers.size() >= BotConfig.MAX_PREVIOUS_NAME_CHANGERS)
+                                previousNameChangers.remove(0);
+                            else previousNameChangers.add(newNameChanger.getId());
+
                             BozoLogger.info(NameChangeRoleEvent.class, "Adding New Adept Name Changer: " + newNameChanger.getEffectiveName() + " (" + newNameChanger.getId() + ")");
                             bozoServer.addRoleToMember(newNameChanger, nameChangerBozoRole).queue();
 
                             bozoChannel.sendMessage(newNameChanger.getAsMention() + " - You're now an Adept Name Changer.").queue();
                             newNameChangerCount++;
                         }
+
+                        Mongo.Misc.updateOne(Filters.eq("type", "previous_name_changers"), Updates.set("list", previousNameChangers));
                     })
                     .onError(t -> bozoChannel.sendMessage("<@309135641453527040> Failed removing role from users.").queue());
         }).onError(t -> bozoChannel.sendMessage("<@309135641453527040> Failed giving role to users.").queue());
