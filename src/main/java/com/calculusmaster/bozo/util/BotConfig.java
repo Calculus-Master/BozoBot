@@ -18,6 +18,8 @@ public class BotConfig
     public static double BOZOCORD_MESSAGE_DELAY = 0.0;
     public static int NAME_CHANGERS = 1;
     public static int MAX_PREVIOUS_NAME_CHANGERS = 5;
+    public static int AI_MAX_TOKENS = 100;
+    public static int AI_MAX_CONVO_MESSAGES = 5; //Multiplied by 2
 
     public static void init()
     {
@@ -34,5 +36,7 @@ public class BotConfig
         BOZOCORD_MESSAGE_DELAY = config.getDouble("message_delay");
         NAME_CHANGERS = config.getInteger("name_changers");
         MAX_PREVIOUS_NAME_CHANGERS = config.getInteger("max_previous_name_changers");
+        AI_MAX_TOKENS = config.getInteger("ai_max_tokens");
+        AI_MAX_CONVO_MESSAGES = config.getInteger("ai_max_convo_messages");
     }
 }

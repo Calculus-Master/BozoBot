@@ -39,7 +39,7 @@ public class ClaudeInterface
 
 		Document doc = new Document()
 				.append("model", "claude-3-haiku-20240307")
-				.append("max_tokens", 60)
+				.append("max_tokens", BotConfig.AI_MAX_TOKENS)
 				.append("messages", messages)
 				.append("temperature", 1.0)
 				.append("system", """
@@ -103,7 +103,7 @@ Here are the users in the server. The id is followed by a list of potential nick
 		MESSAGES.add(new Document("role", "user").append("content", input));
 		MESSAGES.add(new Document("role", "assistant").append("content", aiResponse));
 
-		if(MESSAGES.size() > 10) MESSAGES.subList(0, 2).clear();
+		if(MESSAGES.size() > BotConfig.AI_MAX_CONVO_MESSAGES * 2) MESSAGES.subList(0, 2).clear();
 
 		return aiResponse;
 	}
