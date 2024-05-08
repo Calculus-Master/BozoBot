@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -19,12 +20,14 @@ public class TimeManager
     private static final Map<String, Integer> INTERVALS = new HashMap<>();
     private static final Map<String, Long> TIMES = new HashMap<>();
 
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+
     public static void init()
     {
         TimeManager.readIntervals();
         TimeManager.readTimes();
 
-        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(TimeManager::checkTime, 0, 3, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(TimeManager::checkTime, 1, 1, TimeUnit.SECONDS);
     }
 
     public static void readTimes()
@@ -54,7 +57,8 @@ public class TimeManager
 
             if(now >= target)
             {
-                te.action.run();
+                if(te.parallel) EXECUTOR.submit(te.action);
+                else te.action.run();
 
                 long newTime = target + INTERVALS.get(te.key) * (60 * 60);
                 TIMES.put(te.key, newTime);
@@ -66,18 +70,20 @@ public class TimeManager
 
     public enum TimeEntry
     {
-        IDIOT_LIST("idiot_list", IdiotListEvent::triggerIdiotListPing),
-        NAME_CHANGER("name_changer", NameChangeRoleEvent::cycleNameChangeRole),
-        BINGO_BOARD("bingo_board", BingoManager::createBingoBoard),
+        IDIOT_LIST("idiot_list", IdiotListEvent::triggerIdiotListPing, false),
+        NAME_CHANGER("name_changer", NameChangeRoleEvent::cycleNameChangeRole, false),
+        BINGO_BOARD("bingo_board", BingoManager::createBingoBoard, true),
 
         ;
         final String key;
         final Runnable action;
+        final boolean parallel;
 
-        TimeEntry(String key, Runnable action)
+        TimeEntry(String key, Runnable action, boolean parallel)
         {
             this.key = key;
             this.action = action;
+            this.parallel = parallel;
         }
     }
 }
