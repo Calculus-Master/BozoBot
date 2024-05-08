@@ -56,7 +56,7 @@ public class TimeManager
             {
                 te.action.run();
 
-                long newTime = now + INTERVALS.get(te.key) * (60 * 60);
+                long newTime = target + INTERVALS.get(te.key) * (60 * 60);
                 TIMES.put(te.key, newTime);
 
                 Mongo.Misc.updateOne(Filters.eq("type", "time_data"), Updates.set(te.key + ".next_time", newTime));
